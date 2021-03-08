@@ -7,9 +7,8 @@ package org.whispersystems.libsignal.state.impl;
 
 import org.whispersystems.libsignal.DeviceId;
 import org.whispersystems.libsignal.SignalProtocolAddress;
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyIdException;
+import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.state.SignalProtocolStore;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SessionRecord;
@@ -25,12 +24,12 @@ public class InMemorySignalProtocolStore implements SignalProtocolStore {
 
   private final InMemoryIdentityKeyStore  identityKeyStore;
 
-  public InMemorySignalProtocolStore(IdentityKeyPair identityKeyPair) {
+  public InMemorySignalProtocolStore(ECKeyPair identityKeyPair) {
     this.identityKeyStore = new InMemoryIdentityKeyStore(identityKeyPair);
   }
 
   @Override
-  public IdentityKeyPair getIdentityKeyPair() {
+  public ECKeyPair getIdentityKeyPair() {
     return identityKeyStore.getIdentityKeyPair();
   }
 

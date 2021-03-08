@@ -2,9 +2,9 @@ package org.whispersystems.libsignal.fingerprint;
 
 import junit.framework.TestCase;
 
-import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.ecc.Curve;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 
 import java.util.Arrays;
 
@@ -24,8 +24,8 @@ public class NumericFingerprintGeneratorTest extends TestCase {
   private static final byte[] BOB_SCANNABLE_FINGERPRINT_V2   = new byte[]{(byte)0x08, (byte)0x02, (byte)0x12, (byte)0x22, (byte)0x0a, (byte)0x20, (byte)0x27, (byte)0x08, (byte)0xe4, (byte)0x53, (byte)0xba, (byte)0x25, (byte)0x90, (byte)0x14, (byte)0x23, (byte)0x44, (byte)0x48, (byte)0x63, (byte)0xa7, (byte)0x92, (byte)0x97, (byte)0x5c, (byte)0xdd, (byte)0x8b, (byte)0xa2, (byte)0x27, (byte)0x5e, (byte)0xfd, (byte)0x17, (byte)0xa6, (byte)0x15, (byte)0x07, (byte)0x05, (byte)0x02, (byte)0xa9, (byte)0x4c, (byte)0x79, (byte)0xd4, (byte)0x1a, (byte)0x22, (byte)0x0a, (byte)0x20, (byte)0xd4, (byte)0x7b, (byte)0x01, (byte)0xfa, (byte)0x92, (byte)0x28, (byte)0xc1, (byte)0x07, (byte)0x5d, (byte)0xde, (byte)0x7e, (byte)0x90, (byte)0x51, (byte)0x3e, (byte)0xf6, (byte)0xdc, (byte)0x75, (byte)0x74, (byte)0x14, (byte)0x45, (byte)0x13, (byte)0x23, (byte)0x58, (byte)0xdb, (byte)0x0e, (byte)0xc9, (byte)0xed, (byte)0x8c, (byte)0x3d, (byte)0x44, (byte)0xda, (byte)0x16};
 
   public void testVectorsVersion1() throws Exception {
-    IdentityKey aliceIdentityKey = new IdentityKey(ALICE_IDENTITY, 0);
-    IdentityKey bobIdentityKey   = new IdentityKey(BOB_IDENTITY, 0);
+    ECPublicKey aliceIdentityKey = new ECPublicKey(ALICE_IDENTITY);
+    ECPublicKey bobIdentityKey   = new ECPublicKey(BOB_IDENTITY);
     byte[]      aliceStableId    = "+14152222222".getBytes();
     byte[]      bobStableId      = "+14153333333".getBytes();
 
@@ -47,8 +47,8 @@ public class NumericFingerprintGeneratorTest extends TestCase {
   }
 
   public void testVectorsVersion2() throws Exception {
-    IdentityKey aliceIdentityKey = new IdentityKey(ALICE_IDENTITY, 0);
-    IdentityKey bobIdentityKey   = new IdentityKey(BOB_IDENTITY, 0);
+    ECPublicKey aliceIdentityKey = new ECPublicKey(ALICE_IDENTITY);
+    ECPublicKey bobIdentityKey   = new ECPublicKey(BOB_IDENTITY);
     byte[]      aliceStableId    = "+14152222222".getBytes();
     byte[]      bobStableId      = "+14153333333".getBytes();
 
@@ -73,8 +73,8 @@ public class NumericFingerprintGeneratorTest extends TestCase {
     ECKeyPair aliceKeyPair = Curve.generateKeyPair();
     ECKeyPair bobKeyPair   = Curve.generateKeyPair();
 
-    IdentityKey aliceIdentityKey = new IdentityKey(aliceKeyPair.getPublicKey());
-    IdentityKey bobIdentityKey   = new IdentityKey(bobKeyPair.getPublicKey());
+    ECPublicKey aliceIdentityKey = aliceKeyPair.getPublicKey();
+    ECPublicKey bobIdentityKey   = bobKeyPair.getPublicKey();
 
     NumericFingerprintGenerator generator        = new NumericFingerprintGenerator(1024);
     Fingerprint                 aliceFingerprint = generator.createFor(VERSION_1,
@@ -99,9 +99,9 @@ public class NumericFingerprintGeneratorTest extends TestCase {
     ECKeyPair bobKeyPair   = Curve.generateKeyPair();
     ECKeyPair mitmKeyPair  = Curve.generateKeyPair();
 
-    IdentityKey aliceIdentityKey = new IdentityKey(aliceKeyPair.getPublicKey());
-    IdentityKey bobIdentityKey   = new IdentityKey(bobKeyPair.getPublicKey());
-    IdentityKey mitmIdentityKey  = new IdentityKey(mitmKeyPair.getPublicKey());
+    ECPublicKey aliceIdentityKey = aliceKeyPair.getPublicKey();
+    ECPublicKey bobIdentityKey   = bobKeyPair.getPublicKey();
+    ECPublicKey mitmIdentityKey  = mitmKeyPair.getPublicKey();
 
     NumericFingerprintGenerator generator        = new NumericFingerprintGenerator(1024);
     Fingerprint                 aliceFingerprint = generator.createFor(VERSION_1,
@@ -123,8 +123,8 @@ public class NumericFingerprintGeneratorTest extends TestCase {
     ECKeyPair aliceKeyPair = Curve.generateKeyPair();
     ECKeyPair bobKeyPair   = Curve.generateKeyPair();
 
-    IdentityKey aliceIdentityKey = new IdentityKey(aliceKeyPair.getPublicKey());
-    IdentityKey bobIdentityKey   = new IdentityKey(bobKeyPair.getPublicKey());
+    ECPublicKey aliceIdentityKey = aliceKeyPair.getPublicKey();
+    ECPublicKey bobIdentityKey   = bobKeyPair.getPublicKey();
 
     NumericFingerprintGenerator generator        = new NumericFingerprintGenerator(1024);
     Fingerprint                 aliceFingerprint = generator.createFor(VERSION_1,
@@ -143,8 +143,8 @@ public class NumericFingerprintGeneratorTest extends TestCase {
   }
 
   public void testDifferentVersionsMakeSameFingerPrintsButDifferentScannable() throws Exception {
-    IdentityKey aliceIdentityKey = new IdentityKey(ALICE_IDENTITY, 0);
-    IdentityKey bobIdentityKey   = new IdentityKey(BOB_IDENTITY, 0);
+    ECPublicKey aliceIdentityKey = new ECPublicKey(ALICE_IDENTITY);
+    ECPublicKey bobIdentityKey   = new ECPublicKey(BOB_IDENTITY);
     byte[]      aliceStableId    = "+14152222222".getBytes();
     byte[]      bobStableId      = "+14153333333".getBytes();
 

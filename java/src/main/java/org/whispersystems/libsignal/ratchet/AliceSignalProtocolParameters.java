@@ -5,24 +5,22 @@
  */
 package org.whispersystems.libsignal.ratchet;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 public class AliceSignalProtocolParameters {
 
-  private final IdentityKeyPair       ourIdentityKey;
+  private final ECKeyPair       ourIdentityKey;
   private final ECKeyPair             ourBaseKey;
 
-  private final IdentityKey           theirIdentityKey;
+  private final ECPublicKey           theirIdentityKey;
   private final ECPublicKey           theirSignedPreKey;
   private final Optional<ECPublicKey> theirOneTimePreKey;
   private final ECPublicKey           theirRatchetKey;
 
-  private AliceSignalProtocolParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourBaseKey,
-                                        IdentityKey theirIdentityKey, ECPublicKey theirSignedPreKey,
+  private AliceSignalProtocolParameters(ECKeyPair ourIdentityKey, ECKeyPair ourBaseKey,
+                                        ECPublicKey theirIdentityKey, ECPublicKey theirSignedPreKey,
                                         ECPublicKey theirRatchetKey, Optional<ECPublicKey> theirOneTimePreKey)
   {
     this.ourIdentityKey     = ourIdentityKey;
@@ -39,7 +37,7 @@ public class AliceSignalProtocolParameters {
     }
   }
 
-  public IdentityKeyPair getOurIdentityKey() {
+  public ECKeyPair getOurIdentityKey() {
     return ourIdentityKey;
   }
 
@@ -47,7 +45,7 @@ public class AliceSignalProtocolParameters {
     return ourBaseKey;
   }
 
-  public IdentityKey getTheirIdentityKey() {
+  public ECPublicKey getTheirIdentityKey() {
     return theirIdentityKey;
   }
 
@@ -68,15 +66,15 @@ public class AliceSignalProtocolParameters {
   }
 
   public static class Builder {
-    private IdentityKeyPair       ourIdentityKey;
+    private ECKeyPair             ourIdentityKey;
     private ECKeyPair             ourBaseKey;
 
-    private IdentityKey           theirIdentityKey;
+    private ECPublicKey           theirIdentityKey;
     private ECPublicKey           theirSignedPreKey;
     private ECPublicKey           theirRatchetKey;
     private Optional<ECPublicKey> theirOneTimePreKey;
 
-    public Builder setOurIdentityKey(IdentityKeyPair ourIdentityKey) {
+    public Builder setOurIdentityKey(ECKeyPair ourIdentityKey) {
       this.ourIdentityKey = ourIdentityKey;
       return this;
     }
@@ -91,7 +89,7 @@ public class AliceSignalProtocolParameters {
       return this;
     }
 
-    public Builder setTheirIdentityKey(IdentityKey theirIdentityKey) {
+    public Builder setTheirIdentityKey(ECPublicKey theirIdentityKey) {
       this.theirIdentityKey = theirIdentityKey;
       return this;
     }

@@ -50,11 +50,11 @@ public class Curve25519Test extends TestCase {
                            (byte) 0xdd, (byte) 0x7c, (byte) 0xa4, (byte) 0xc4, (byte) 0x77,
                            (byte) 0xe6, (byte) 0x29};
 
-    ECPublicKey alicePublicKey = Curve.decodePoint(alicePublic, 0);
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(alicePrivate);
+    ECPublicKey alicePublicKey = new ECPublicKey(alicePublic);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(alicePrivate);
 
-    ECPublicKey bobPublicKey = Curve.decodePoint(bobPublic, 0);
-    ECPrivateKey bobPrivateKey = Curve.decodePrivatePoint(bobPrivate);
+    ECPublicKey bobPublicKey = new ECPublicKey(bobPublic);
+    ECPrivateKey bobPrivateKey = new ECPrivateKey(bobPrivate);
 
     byte[] sharedOne = Curve.calculateAgreement(alicePublicKey, bobPrivateKey);
     byte[] sharedTwo = Curve.calculateAgreement(bobPublicKey, alicePrivateKey);
@@ -114,8 +114,8 @@ public class Curve25519Test extends TestCase {
                                    (byte)0x86, (byte)0xce, (byte)0xf0, (byte)0x47, (byte)0xbd,
                                    (byte)0x60, (byte)0xb8, (byte)0x6e, (byte)0x88};
 
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(aliceIdentityPrivate);
-    ECPublicKey  alicePublicKey  = Curve.decodePoint(aliceIdentityPublic, 0);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(aliceIdentityPrivate);
+    ECPublicKey  alicePublicKey  = new ECPublicKey(aliceIdentityPublic);
 
     if (!Curve.verifySignature(alicePublicKey, aliceEphemeralPublic, aliceSignature)) {
       throw new AssertionError("Sig verification failed!");
@@ -135,12 +135,12 @@ public class Curve25519Test extends TestCase {
 
   public void testDecodeSize() throws InvalidKeyException {
     ECKeyPair keyPair          = Curve.generateKeyPair();
-    byte[]    serializedPublic = keyPair.getPublicKey().serialize();
+    byte[]    serializedPublic = keyPair.getPublicKey().getBytes();
 
-    ECPublicKey justRight = Curve.decodePoint(serializedPublic, 0);
+    ECPublicKey justRight = new ECPublicKey(serializedPublic);
 
     try {
-      ECPublicKey empty = Curve.decodePoint(new byte[0], 0);
+      ECPublicKey empty = new ECPublicKey(new byte[0]);
       throw new AssertionError("Shouldn't parse");
     } catch (InvalidKeyException e) {
       // good
@@ -148,9 +148,9 @@ public class Curve25519Test extends TestCase {
 
     byte[] extraSpace = new byte[serializedPublic.length + 1];
     System.arraycopy(serializedPublic, 0, extraSpace, 0, serializedPublic.length);
-    ECPublicKey extra = Curve.decodePoint(extraSpace, 0);
+    ECPublicKey extra = new ECPublicKey(extraSpace);
 
-    assertTrue(Arrays.equals(serializedPublic, justRight.serialize()));
-    assertTrue(Arrays.equals(extra.serialize(), serializedPublic));
+    assertTrue(Arrays.equals(serializedPublic, justRight.getBytes()));
+    assertTrue(Arrays.equals(extra.getBytes(), serializedPublic));
   }
 }

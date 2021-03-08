@@ -40,7 +40,7 @@ public class InMemorySessionStore implements SessionStore {
     List<DeviceId> deviceIds = new LinkedList<>();
 
     for (SignalProtocolAddress key : sessions.keySet()) {
-      if (key.getUserId().equals(name))
+      if (key.getIdentityKey().equals(name))
       {
         deviceIds.add(key.getDeviceId());
       }
@@ -67,7 +67,7 @@ public class InMemorySessionStore implements SessionStore {
   @Override
   public synchronized void deleteAllSessions(String name) {
     for (SignalProtocolAddress key : sessions.keySet()) {
-      if (key.getUserId().equals(name)) {
+      if (key.getIdentityKey().equals(name)) {
         sessions.remove(key);
       }
     }

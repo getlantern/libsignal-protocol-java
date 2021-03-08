@@ -1,6 +1,6 @@
 package org.whispersystems.libsignal.devices;
 
-import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.util.ByteUtil;
 import org.whispersystems.libsignal.util.IdentityKeyComparator;
 
@@ -17,17 +17,17 @@ public class DeviceConsistencyCommitment {
   private final int generation;
   private final byte[] serialized;
 
-  public DeviceConsistencyCommitment(int generation, List<IdentityKey> identityKeys) {
+  public DeviceConsistencyCommitment(int generation, List<ECPublicKey> identityKeys) {
     try {
-      ArrayList<IdentityKey> sortedIdentityKeys = new ArrayList<>(identityKeys);
+      ArrayList<ECPublicKey> sortedIdentityKeys = new ArrayList<>(identityKeys);
       Collections.sort(sortedIdentityKeys, new IdentityKeyComparator());
 
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-512");
       messageDigest.update(VERSION.getBytes());
       messageDigest.update(ByteUtil.intToByteArray(generation));
 
-      for (IdentityKey commitment : sortedIdentityKeys) {
-        messageDigest.update(commitment.getPublicKey().serialize());
+      for (ECPublicKey commitment : sortedIdentityKeys) {
+        messageDigest.update(commitment.getBytes());
       }
 
       this.generation = generation;

@@ -6,6 +6,14 @@
 
 package org.whispersystems.libsignal.ecc;
 
-public interface ECPrivateKey {
-  public byte[] serialize();
+public class ECPrivateKey {
+  protected final byte[] bytes;
+
+  public ECPrivateKey(byte[] bytes) {
+    this.bytes = bytes;
+  }
+
+  public byte[] getBytes() {
+    return bytes;
+  }
 }

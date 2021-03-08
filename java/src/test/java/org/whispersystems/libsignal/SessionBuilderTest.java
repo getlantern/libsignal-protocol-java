@@ -4,6 +4,7 @@ import junit.framework.TestCase;
 
 import org.whispersystems.libsignal.ecc.Curve;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.protocol.CiphertextMessage;
 import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
 import org.whispersystems.libsignal.protocol.SignalMessage;
@@ -24,12 +25,11 @@ public class SessionBuilderTest extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
 
     ECKeyPair    bobPreKeyPair = Curve.generateKeyPair();
-    PreKeyBundle bobPreKey     = new PreKeyBundle(1,
-                                                  31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey     = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                                   0, null, null,
                                                   bobStore.getIdentityKeyPair().getPublicKey());
 
@@ -50,15 +50,15 @@ public class SessionBuilderTest extends TestCase {
           ECKeyPair    bobPreKeyPair            = Curve.generateKeyPair();
           ECKeyPair    bobSignedPreKeyPair      = Curve.generateKeyPair();
           byte[]       bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                                           bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                           bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    // round-trip the identity key to test string encoding
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new ECPublicKey(bobStore.getIdentityKeyPair().getPublicKey().toString()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(),
                                               bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
@@ -152,9 +152,9 @@ public class SessionBuilderTest extends TestCase {
     ECKeyPair bobPreKeyPair            = Curve.generateKeyPair();
     ECKeyPair bobSignedPreKeyPair      = Curve.generateKeyPair();
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobIdentityKeyStore.getIdentityKeyPair().getPrivateKey(),
-                                                                  bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                  bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobIdentityKeyStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobIdentityKeyStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
 
@@ -164,8 +164,7 @@ public class SessionBuilderTest extends TestCase {
 
       modifiedSignature[i/8] ^= (0x01 << (i % 8));
 
-      PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                                31337, bobPreKeyPair.getPublicKey(),
+      PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                                 22, bobSignedPreKeyPair.getPublicKey(), modifiedSignature,
                                                 bobIdentityKeyStore.getIdentityKeyPair().getPublicKey());
 
@@ -177,8 +176,7 @@ public class SessionBuilderTest extends TestCase {
       }
     }
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobIdentityKeyStore.getIdentityKeyPair().getPublicKey());
 
@@ -193,14 +191,13 @@ public class SessionBuilderTest extends TestCase {
     ECKeyPair bobPreKeyPair            = Curve.generateKeyPair();
     ECKeyPair bobSignedPreKeyPair      = Curve.generateKeyPair();
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                                  bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                  bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                               0, null, null,
                                               bobStore.getIdentityKeyPair().getPublicKey());
 
@@ -224,15 +221,14 @@ public class SessionBuilderTest extends TestCase {
     ECKeyPair bobPreKeyPair            = Curve.generateKeyPair();
     ECKeyPair bobSignedPreKeyPair      = Curve.generateKeyPair();
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                                  bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                  bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
 
@@ -282,14 +278,13 @@ public class SessionBuilderTest extends TestCase {
     ECKeyPair bobPreKeyPair            = Curve.generateKeyPair();
     ECKeyPair bobSignedPreKeyPair      = Curve.generateKeyPair();
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                                  bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                  bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              31337, bobPreKeyPair.getPublicKey(),
+    PreKeyBundle bobPreKey = new PreKeyBundle(31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
 
@@ -338,16 +333,15 @@ public class SessionBuilderTest extends TestCase {
     ECKeyPair bobPreKeyPair            = Curve.generateKeyPair();
     ECKeyPair bobSignedPreKeyPair      = Curve.generateKeyPair();
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                                  bobSignedPreKeyPair.getPublicKey().serialize());
+                                                                  bobSignedPreKeyPair.getPublicKey().getBytes());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(1,
-                                              0, null,
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+
+    PreKeyBundle bobPreKey = new PreKeyBundle(0, null,
                                               22, bobSignedPreKeyPair.getPublicKey(),
                                               bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
-
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
     aliceSessionBuilder.process(bobPreKey);

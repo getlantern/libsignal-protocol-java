@@ -64,11 +64,11 @@ public class RootKeyTest extends TestCase {
                            (byte) 0x43, (byte) 0x0c, (byte) 0x5c, (byte) 0x55, (byte) 0xb5,
                            (byte) 0xca, (byte) 0x5f};
 
-    ECPublicKey  alicePublicKey  = Curve.decodePoint(alicePublic, 0);
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(alicePrivate);
+    ECPublicKey  alicePublicKey  = new ECPublicKey(alicePublic);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(alicePrivate);
     ECKeyPair    aliceKeyPair    = new ECKeyPair(alicePublicKey, alicePrivateKey);
 
-    ECPublicKey bobPublicKey = Curve.decodePoint(bobPublic, 0);
+    ECPublicKey bobPublicKey = new ECPublicKey(bobPublic);
     RootKey     rootKey      = new RootKey(HKDF.createFor(2), rootKeySeed);
 
     Pair<RootKey, ChainKey> rootKeyChainKeyPair = rootKey.createChain(bobPublicKey, aliceKeyPair);

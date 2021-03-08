@@ -5,25 +5,23 @@
  */
 package org.whispersystems.libsignal.ratchet;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 public class BobSignalProtocolParameters {
 
-  private final IdentityKeyPair     ourIdentityKey;
+  private final ECKeyPair           ourIdentityKey;
   private final ECKeyPair           ourSignedPreKey;
   private final Optional<ECKeyPair> ourOneTimePreKey;
   private final ECKeyPair           ourRatchetKey;
 
-  private final IdentityKey         theirIdentityKey;
+  private final ECPublicKey         theirIdentityKey;
   private final ECPublicKey         theirBaseKey;
 
-  BobSignalProtocolParameters(IdentityKeyPair ourIdentityKey, ECKeyPair ourSignedPreKey,
+  BobSignalProtocolParameters(ECKeyPair ourIdentityKey, ECKeyPair ourSignedPreKey,
                               ECKeyPair ourRatchetKey, Optional<ECKeyPair> ourOneTimePreKey,
-                              IdentityKey theirIdentityKey, ECPublicKey theirBaseKey)
+                              ECPublicKey theirIdentityKey, ECPublicKey theirBaseKey)
   {
     this.ourIdentityKey   = ourIdentityKey;
     this.ourSignedPreKey  = ourSignedPreKey;
@@ -39,7 +37,7 @@ public class BobSignalProtocolParameters {
     }
   }
 
-  public IdentityKeyPair getOurIdentityKey() {
+  public ECKeyPair getOurIdentityKey() {
     return ourIdentityKey;
   }
 
@@ -51,7 +49,7 @@ public class BobSignalProtocolParameters {
     return ourOneTimePreKey;
   }
 
-  public IdentityKey getTheirIdentityKey() {
+  public ECPublicKey getTheirIdentityKey() {
     return theirIdentityKey;
   }
 
@@ -68,15 +66,15 @@ public class BobSignalProtocolParameters {
   }
 
   public static class Builder {
-    private IdentityKeyPair     ourIdentityKey;
+    private ECKeyPair     ourIdentityKey;
     private ECKeyPair           ourSignedPreKey;
     private Optional<ECKeyPair> ourOneTimePreKey;
     private ECKeyPair           ourRatchetKey;
 
-    private IdentityKey         theirIdentityKey;
+    private ECPublicKey         theirIdentityKey;
     private ECPublicKey         theirBaseKey;
 
-    public Builder setOurIdentityKey(IdentityKeyPair ourIdentityKey) {
+    public Builder setOurIdentityKey(ECKeyPair ourIdentityKey) {
       this.ourIdentityKey = ourIdentityKey;
       return this;
     }
@@ -91,7 +89,7 @@ public class BobSignalProtocolParameters {
       return this;
     }
 
-    public Builder setTheirIdentityKey(IdentityKey theirIdentityKey) {
+    public Builder setTheirIdentityKey(ECPublicKey theirIdentityKey) {
       this.theirIdentityKey = theirIdentityKey;
       return this;
     }

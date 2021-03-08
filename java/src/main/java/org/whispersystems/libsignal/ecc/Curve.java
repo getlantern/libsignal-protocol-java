@@ -10,8 +10,6 @@ import org.whispersystems.curve25519.Curve25519KeyPair;
 import org.whispersystems.curve25519.VrfSignatureVerificationFailedException;
 import org.whispersystems.libsignal.InvalidKeyException;
 
-import java.util.Arrays;
-
 import static org.whispersystems.curve25519.Curve25519.BEST;
 
 public class Curve {
@@ -23,26 +21,12 @@ public class Curve {
   public static ECKeyPair generateKeyPair() {
     Curve25519KeyPair keyPair = Curve25519.getInstance(BEST).generateKeyPair();
 
-    return new ECKeyPair(new DjbECPublicKey(keyPair.getPublicKey()),
-                         new DjbECPrivateKey(keyPair.getPrivateKey()));
-  }
-
-  public static ECPublicKey decodePoint(byte[] bytes, int offset)
-      throws InvalidKeyException
-  {
-      if (bytes == null || bytes.length < 32) {
-        throw new InvalidKeyException("Bad key length: " + bytes.length);
-      }
-
-      if (bytes.length > 32) {
-        bytes = Arrays.copyOf(bytes, 32);
-      }
-
-      return new DjbECPublicKey(bytes);
-  }
-
-  public static ECPrivateKey decodePrivatePoint(byte[] bytes) {
-    return new DjbECPrivateKey(bytes);
+    try {
+      return new ECKeyPair(new ECPublicKey(keyPair.getPublicKey()),
+              new ECPrivateKey(keyPair.getPrivateKey()));
+    } catch (InvalidKeyException e) {
+      throw new AssertionError("Invalid key on generation, this should never happen", e);
+    }
   }
 
   public static byte[] calculateAgreement(ECPublicKey publicKey, ECPrivateKey privateKey)
@@ -58,8 +42,8 @@ public class Curve {
 
 
     return Curve25519.getInstance(BEST)
-                     .calculateAgreement(((DjbECPublicKey) publicKey).getPublicKey(),
-                                         ((DjbECPrivateKey) privateKey).getPrivateKey());
+                     .calculateAgreement(((ECPublicKey) publicKey).getBytes(),
+                                         ((ECPrivateKey) privateKey).getBytes());
   }
 
   public static boolean verifySignature(ECPublicKey signingKey, byte[] message, byte[] signature)
@@ -70,7 +54,7 @@ public class Curve {
     }
 
     return Curve25519.getInstance(BEST)
-                     .verifySignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
+                     .verifySignature(((ECPublicKey) signingKey).getBytes(), message, signature);
   }
 
   public static byte[] calculateSignature(ECPrivateKey signingKey, byte[] message)
@@ -81,7 +65,7 @@ public class Curve {
     }
 
     return Curve25519.getInstance(BEST)
-                     .calculateSignature(((DjbECPrivateKey) signingKey).getPrivateKey(), message);
+                     .calculateSignature(((ECPrivateKey) signingKey).getBytes(), message);
   }
 
   public static byte[] calculateVrfSignature(ECPrivateKey signingKey, byte[] message)
@@ -92,7 +76,7 @@ public class Curve {
     }
 
     return Curve25519.getInstance(BEST)
-                     .calculateVrfSignature(((DjbECPrivateKey)signingKey).getPrivateKey(), message);
+                     .calculateVrfSignature(((ECPrivateKey)signingKey).getBytes(), message);
   }
 
   public static byte[] verifyVrfSignature(ECPublicKey signingKey, byte[] message, byte[] signature)
@@ -103,7 +87,7 @@ public class Curve {
     }
 
     return Curve25519.getInstance(BEST)
-                     .verifyVrfSignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
+                     .verifyVrfSignature(((ECPublicKey) signingKey).getBytes(), message, signature);
   }
 
 }

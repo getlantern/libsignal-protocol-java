@@ -1,5 +1,6 @@
 package org.whispersystems.libsignal.util;
 
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -138,4 +139,19 @@ public class Base32 {
         }
         return bytes;
     }
+
+    // This alphabet is based on the z-base-32 alphabet which preferences characters that are easier
+    // for humans to read. It omits the number 0 and the letters i, l and v. On decoding, we also
+    // map the letters i and l to the number 1 and the number 0 to the letter o.
+    private static final String humanFriendlyAlphabet = "ybndrfg8ejkmcpqxot1uw2sza345h769";
+    private static final Map<Integer, Integer> replacements = new HashMap<Integer, Integer>();
+
+    static {
+        // map some commonly fat-fingered characters to their correct replacements
+        replacements.put((int) 'i', (int) '1');
+        replacements.put((int) 'l', (int) '1');
+        replacements.put((int) '0', (int) 'o');
+    }
+
+    public static final Base32 humanFriendly = new Base32(humanFriendlyAlphabet, replacements);
 }

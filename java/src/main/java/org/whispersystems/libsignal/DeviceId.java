@@ -1,5 +1,7 @@
 package org.whispersystems.libsignal;
 
+import org.whispersystems.libsignal.util.Base32;
+
 import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.UUID;
@@ -11,27 +13,16 @@ public class DeviceId {
         this.bytes = bytes;
     }
 
-    public DeviceId(UUID uuid) {
-        this(toBytes(uuid));
+    public DeviceId(String humanFriendlyString) {
+        this(Base32.humanFriendly.decodeFromString(humanFriendlyString));
     }
 
-    public DeviceId(String string) {
-        this(UUID.fromString(string));
-    }
-
-    public DeviceId(int deviceId) {
-        this(new UUID(deviceId, 0));
-    }
-
-    public UUID toUUID() {
-        ByteBuffer bb = ByteBuffer.wrap(bytes);
-        long firstLong = bb.getLong();
-        long secondLong = bb.getLong();
-        return new UUID(firstLong, secondLong);
+    public byte[] getBytes() {
+        return bytes;
     }
 
     public static DeviceId random() {
-        return new DeviceId(UUID.randomUUID());
+        return new DeviceId(toBytes(UUID.randomUUID()));
     }
 
     private static byte[] toBytes(UUID uuid) {
@@ -42,7 +33,7 @@ public class DeviceId {
     }
 
     public String toString() {
-        return toUUID().toString();
+        return Base32.humanFriendly.encodeToString(bytes);
     }
 
     @Override

@@ -4,13 +4,13 @@ import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import org.whispersystems.curve25519.VrfSignatureVerificationFailedException;
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.devices.DeviceConsistencyCommitment;
 import org.whispersystems.libsignal.devices.DeviceConsistencySignature;
 import org.whispersystems.libsignal.ecc.Curve;
+import org.whispersystems.libsignal.ecc.ECKeyPair;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 
 public class DeviceConsistencyMessage {
 
@@ -18,10 +18,10 @@ public class DeviceConsistencyMessage {
   private final int                         generation;
   private final byte[]                      serialized;
 
-  public DeviceConsistencyMessage(DeviceConsistencyCommitment commitment, IdentityKeyPair identityKeyPair) {
+  public DeviceConsistencyMessage(DeviceConsistencyCommitment commitment, ECKeyPair identityKeyPair) {
     try {
       byte[] signatureBytes = Curve.calculateVrfSignature(identityKeyPair.getPrivateKey(), commitment.toByteArray());
-      byte[] vrfOutputBytes = Curve.verifyVrfSignature(identityKeyPair.getPublicKey().getPublicKey(), commitment.toByteArray(), signatureBytes);
+      byte[] vrfOutputBytes = Curve.verifyVrfSignature(identityKeyPair.getPublicKey(), commitment.toByteArray(), signatureBytes);
 
       this.generation = commitment.getGeneration();
       this.signature  = new DeviceConsistencySignature(signatureBytes, vrfOutputBytes);
@@ -35,10 +35,10 @@ public class DeviceConsistencyMessage {
     }
   }
 
-  public DeviceConsistencyMessage(DeviceConsistencyCommitment commitment, byte[] serialized, IdentityKey identityKey) throws InvalidMessageException {
+  public DeviceConsistencyMessage(DeviceConsistencyCommitment commitment, byte[] serialized, ECPublicKey identityKey) throws InvalidMessageException {
     try {
       SignalProtos.DeviceConsistencyCodeMessage message = SignalProtos.DeviceConsistencyCodeMessage.parseFrom(serialized);
-      byte[] vrfOutputBytes = Curve.verifyVrfSignature(identityKey.getPublicKey(), commitment.toByteArray(), message.getSignature().toByteArray());
+      byte[] vrfOutputBytes = Curve.verifyVrfSignature(identityKey, commitment.toByteArray(), message.getSignature().toByteArray());
 
       this.generation = message.getGeneration();
       this.signature  = new DeviceConsistencySignature(message.getSignature().toByteArray(), vrfOutputBytes);

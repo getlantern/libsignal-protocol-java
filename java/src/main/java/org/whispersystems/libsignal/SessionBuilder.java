@@ -105,7 +105,7 @@ public class SessionBuilder {
       throws InvalidKeyIdException, InvalidKeyException
   {
 
-    if (sessionRecord.hasSessionState(message.getMessageVersion(), message.getBaseKey().serialize())) {
+    if (sessionRecord.hasSessionState(message.getMessageVersion(), message.getBaseKey().getBytes())) {
       Log.w(TAG, "We've already setup a session for this V3 message, letting bundled message fall through...");
       return Optional.absent();
     }
@@ -115,7 +115,7 @@ public class SessionBuilder {
     BobSignalProtocolParameters.Builder parameters = BobSignalProtocolParameters.newBuilder();
 
     parameters.setTheirBaseKey(message.getBaseKey())
-              .setTheirIdentityKey(remoteAddress.getUserId().getIdentityKey())
+              .setTheirIdentityKey(remoteAddress.getIdentityKey())
               .setOurIdentityKey(identityKeyStore.getIdentityKeyPair())
               .setOurSignedPreKey(ourSignedPreKey)
               .setOurRatchetKey(ourSignedPreKey);
@@ -130,7 +130,7 @@ public class SessionBuilder {
 
     RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
-    sessionRecord.getSessionState().setAliceBaseKey(message.getBaseKey().serialize());
+    sessionRecord.getSessionState().setAliceBaseKey(message.getBaseKey().getBytes());
 
     if (message.getPreKeyId().isPresent()) {
       return message.getPreKeyId();
@@ -150,8 +150,8 @@ public class SessionBuilder {
   public void process(PreKeyBundle preKey) throws InvalidKeyException {
     synchronized (SessionCipher.SESSION_LOCK) {
       if (preKey.getSignedPreKey() != null &&
-          !Curve.verifySignature(preKey.getIdentityKey().getPublicKey(),
-                                 preKey.getSignedPreKey().serialize(),
+          !Curve.verifySignature(preKey.getIdentityKey(),
+                                 preKey.getSignedPreKey().getBytes(),
                                  preKey.getSignedPreKeySignature()))
       {
         throw new InvalidKeyException("Invalid signature on device key!");
@@ -182,7 +182,7 @@ public class SessionBuilder {
       RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
       sessionRecord.getSessionState().setUnacknowledgedPreKeyMessage(theirOneTimePreKeyId, preKey.getSignedPreKeyId(), ourBaseKey.getPublicKey());
-      sessionRecord.getSessionState().setAliceBaseKey(ourBaseKey.getPublicKey().serialize());
+      sessionRecord.getSessionState().setAliceBaseKey(ourBaseKey.getPublicKey().getBytes());
 
       sessionStore.storeSession(remoteAddress, sessionRecord);
     }

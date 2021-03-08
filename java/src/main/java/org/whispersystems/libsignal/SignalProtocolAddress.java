@@ -5,24 +5,37 @@
  */
 package org.whispersystems.libsignal;
 
+import org.whispersystems.libsignal.ecc.ECPublicKey;
+
 import java.util.Objects;
 
+/**
+ * A SignalProtocolAddress uniquely identifies a sender or recipient in a message xchange.
+ * It consists of an identity that uniquely identifies a person/organization/etc (whoever is authorized
+ * to send and receive messages) and a deviceId that uniquely identifies a specific device being
+ * used by that identity.
+ */
 public class SignalProtocolAddress {
 
-    private final UserId userId;
+    private final ECPublicKey identityKey;
     private final DeviceId deviceId;
 
-    public SignalProtocolAddress(UserId userId, DeviceId deviceId) {
-        this.userId = userId;
+    public SignalProtocolAddress(ECPublicKey identityKey, DeviceId deviceId) {
+        this.identityKey = identityKey;
         this.deviceId = deviceId;
     }
 
-    public SignalProtocolAddress(String userId, int deviceId) {
-        this(new UserId(userId), new DeviceId(deviceId));
+    public SignalProtocolAddress(String str) throws InvalidAddressException, InvalidKeyException {
+        String[] parts = str.split(":");
+        if (parts.length != 2) {
+            throw new InvalidAddressException("Wrong number of parts in string encoded address");
+        }
+        this.identityKey = new ECPublicKey(parts[0]);
+        this.deviceId = new DeviceId(parts[1]);
     }
 
-    public UserId getUserId() {
-        return userId;
+    public ECPublicKey getIdentityKey() {
+        return identityKey;
     }
 
     public DeviceId getDeviceId() {
@@ -31,7 +44,7 @@ public class SignalProtocolAddress {
 
     @Override
     public String toString() {
-        return userId.toString() + ":" + deviceId.toString();
+        return identityKey.toString() + ":" + deviceId.toString();
     }
 
     @Override
@@ -39,12 +52,12 @@ public class SignalProtocolAddress {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         SignalProtocolAddress that = (SignalProtocolAddress) o;
-        return userId.equals(that.userId) &&
+        return identityKey.equals(that.identityKey) &&
                 deviceId.equals(that.deviceId);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(userId, deviceId);
+        return Objects.hash(identityKey, deviceId);
     }
 }

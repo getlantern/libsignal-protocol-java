@@ -9,10 +9,7 @@ package org.whispersystems.libsignal.state;
 
 import com.google.protobuf.ByteString;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.ecc.Curve;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.ecc.ECPrivateKey;
 import org.whispersystems.libsignal.ecc.ECPublicKey;
@@ -81,34 +78,34 @@ public class SessionState {
     else                     return sessionVersion;
   }
 
-  public void setRemoteIdentityKey(IdentityKey identityKey) {
+  public void setRemoteIdentityKey(ECPublicKey identityKey) {
     this.sessionStructure = this.sessionStructure.toBuilder()
-                                                 .setRemoteIdentityPublic(ByteString.copyFrom(identityKey.serialize()))
+                                                 .setRemoteIdentityPublic(ByteString.copyFrom(identityKey.getBytes()))
                                                  .build();
   }
 
-  public void setLocalIdentityKey(IdentityKey identityKey) {
+  public void setLocalIdentityKey(ECPublicKey identityKey) {
     this.sessionStructure = this.sessionStructure.toBuilder()
-                                                 .setLocalIdentityPublic(ByteString.copyFrom(identityKey.serialize()))
+                                                 .setLocalIdentityPublic(ByteString.copyFrom(identityKey.getBytes()))
                                                  .build();
   }
 
-  public IdentityKey getRemoteIdentityKey() {
+  public ECPublicKey getRemoteIdentityKey() {
     try {
       if (!this.sessionStructure.hasRemoteIdentityPublic()) {
         return null;
       }
 
-      return new IdentityKey(this.sessionStructure.getRemoteIdentityPublic().toByteArray(), 0);
+      return new ECPublicKey(this.sessionStructure.getRemoteIdentityPublic().toByteArray());
     } catch (InvalidKeyException e) {
       Log.w("SessionRecordV2", e);
       return null;
     }
   }
 
-  public IdentityKey getLocalIdentityKey() {
+  public ECPublicKey getLocalIdentityKey() {
     try {
-      return new IdentityKey(this.sessionStructure.getLocalIdentityPublic().toByteArray(), 0);
+      return new ECPublicKey(this.sessionStructure.getLocalIdentityPublic().toByteArray());
     } catch (InvalidKeyException e) {
       throw new AssertionError(e);
     }
@@ -137,7 +134,7 @@ public class SessionState {
 
   public ECPublicKey getSenderRatchetKey() {
     try {
-      return Curve.decodePoint(sessionStructure.getSenderChain().getSenderRatchetKey().toByteArray(), 0);
+      return new ECPublicKey(sessionStructure.getSenderChain().getSenderRatchetKey().toByteArray());
     } catch (InvalidKeyException e) {
       throw new AssertionError(e);
     }
@@ -145,7 +142,7 @@ public class SessionState {
 
   public ECKeyPair getSenderRatchetKeyPair() {
     ECPublicKey  publicKey  = getSenderRatchetKey();
-    ECPrivateKey privateKey = Curve.decodePrivatePoint(sessionStructure.getSenderChain()
+    ECPrivateKey privateKey = new ECPrivateKey(sessionStructure.getSenderChain()
                                                                        .getSenderRatchetKeyPrivate()
                                                                        .toByteArray());
 
@@ -166,7 +163,7 @@ public class SessionState {
 
     for (Chain receiverChain : receiverChains) {
       try {
-        ECPublicKey chainSenderRatchetKey = Curve.decodePoint(receiverChain.getSenderRatchetKey().toByteArray(), 0);
+        ECPublicKey chainSenderRatchetKey = new ECPublicKey(receiverChain.getSenderRatchetKey().toByteArray());
 
         if (chainSenderRatchetKey.equals(senderEphemeral)) {
           return new Pair<>(receiverChain,index);
@@ -202,7 +199,7 @@ public class SessionState {
 
     Chain chain = Chain.newBuilder()
                        .setChainKey(chainKeyStructure)
-                       .setSenderRatchetKey(ByteString.copyFrom(senderRatchetKey.serialize()))
+                       .setSenderRatchetKey(ByteString.copyFrom(senderRatchetKey.getBytes()))
                        .build();
 
     this.sessionStructure = this.sessionStructure.toBuilder().addReceiverChains(chain).build();
@@ -221,8 +218,8 @@ public class SessionState {
                                                      .build();
 
     Chain senderChain = Chain.newBuilder()
-                             .setSenderRatchetKey(ByteString.copyFrom(senderRatchetKeyPair.getPublicKey().serialize()))
-                             .setSenderRatchetKeyPrivate(ByteString.copyFrom(senderRatchetKeyPair.getPrivateKey().serialize()))
+                             .setSenderRatchetKey(ByteString.copyFrom(senderRatchetKeyPair.getPublicKey().getBytes()))
+                             .setSenderRatchetKeyPrivate(ByteString.copyFrom(senderRatchetKeyPair.getPrivateKey().getBytes()))
                              .setChainKey(chainKeyStructure)
                              .build();
 
@@ -345,17 +342,17 @@ public class SessionState {
   public void setPendingKeyExchange(int sequence,
                                     ECKeyPair ourBaseKey,
                                     ECKeyPair ourRatchetKey,
-                                    IdentityKeyPair ourIdentityKey)
+                                    ECKeyPair ourIdentityKey)
   {
     PendingKeyExchange structure =
         PendingKeyExchange.newBuilder()
                           .setSequence(sequence)
-                          .setLocalBaseKey(ByteString.copyFrom(ourBaseKey.getPublicKey().serialize()))
-                          .setLocalBaseKeyPrivate(ByteString.copyFrom(ourBaseKey.getPrivateKey().serialize()))
-                          .setLocalRatchetKey(ByteString.copyFrom(ourRatchetKey.getPublicKey().serialize()))
-                          .setLocalRatchetKeyPrivate(ByteString.copyFrom(ourRatchetKey.getPrivateKey().serialize()))
-                          .setLocalIdentityKey(ByteString.copyFrom(ourIdentityKey.getPublicKey().serialize()))
-                          .setLocalIdentityKeyPrivate(ByteString.copyFrom(ourIdentityKey.getPrivateKey().serialize()))
+                          .setLocalBaseKey(ByteString.copyFrom(ourBaseKey.getPublicKey().getBytes()))
+                          .setLocalBaseKeyPrivate(ByteString.copyFrom(ourBaseKey.getPrivateKey().getBytes()))
+                          .setLocalRatchetKey(ByteString.copyFrom(ourRatchetKey.getPublicKey().getBytes()))
+                          .setLocalRatchetKeyPrivate(ByteString.copyFrom(ourRatchetKey.getPrivateKey().getBytes()))
+                          .setLocalIdentityKey(ByteString.copyFrom(ourIdentityKey.getPublicKey().getBytes()))
+                          .setLocalIdentityKeyPrivate(ByteString.copyFrom(ourIdentityKey.getPrivateKey().getBytes()))
                           .build();
 
     this.sessionStructure = this.sessionStructure.toBuilder()
@@ -368,10 +365,10 @@ public class SessionState {
   }
 
   public ECKeyPair getPendingKeyExchangeBaseKey() throws InvalidKeyException {
-    ECPublicKey publicKey   = Curve.decodePoint(sessionStructure.getPendingKeyExchange()
-                                                                .getLocalBaseKey().toByteArray(), 0);
+    ECPublicKey publicKey   = new ECPublicKey(sessionStructure.getPendingKeyExchange()
+                                                                .getLocalBaseKey().toByteArray());
 
-    ECPrivateKey privateKey = Curve.decodePrivatePoint(sessionStructure.getPendingKeyExchange()
+    ECPrivateKey privateKey = new ECPrivateKey(sessionStructure.getPendingKeyExchange()
                                                                        .getLocalBaseKeyPrivate()
                                                                        .toByteArray());
 
@@ -379,25 +376,25 @@ public class SessionState {
   }
 
   public ECKeyPair getPendingKeyExchangeRatchetKey() throws InvalidKeyException {
-    ECPublicKey publicKey   = Curve.decodePoint(sessionStructure.getPendingKeyExchange()
-                                                                .getLocalRatchetKey().toByteArray(), 0);
+    ECPublicKey publicKey   = new ECPublicKey(sessionStructure.getPendingKeyExchange()
+                                                                .getLocalRatchetKey().toByteArray());
 
-    ECPrivateKey privateKey = Curve.decodePrivatePoint(sessionStructure.getPendingKeyExchange()
+    ECPrivateKey privateKey = new ECPrivateKey(sessionStructure.getPendingKeyExchange()
                                                                        .getLocalRatchetKeyPrivate()
                                                                        .toByteArray());
 
     return new ECKeyPair(publicKey, privateKey);
   }
 
-  public IdentityKeyPair getPendingKeyExchangeIdentityKey() throws InvalidKeyException {
-    IdentityKey publicKey = new IdentityKey(sessionStructure.getPendingKeyExchange()
-                                                            .getLocalIdentityKey().toByteArray(), 0);
+  public ECKeyPair getPendingKeyExchangeIdentityKey() throws InvalidKeyException {
+    ECPublicKey publicKey = new ECPublicKey(sessionStructure.getPendingKeyExchange()
+                                                            .getLocalIdentityKey().toByteArray());
 
-    ECPrivateKey privateKey = Curve.decodePrivatePoint(sessionStructure.getPendingKeyExchange()
+    ECPrivateKey privateKey = new ECPrivateKey(sessionStructure.getPendingKeyExchange()
                                                                        .getLocalIdentityKeyPrivate()
                                                                        .toByteArray());
 
-    return new IdentityKeyPair(publicKey, privateKey);
+    return new ECKeyPair(publicKey, privateKey);
   }
 
   public boolean hasPendingKeyExchange() {
@@ -407,7 +404,7 @@ public class SessionState {
   public void setUnacknowledgedPreKeyMessage(Optional<Integer> preKeyId, int signedPreKeyId, ECPublicKey baseKey) {
     PendingPreKey.Builder pending = PendingPreKey.newBuilder()
                                                  .setSignedPreKeyId(signedPreKeyId)
-                                                 .setBaseKey(ByteString.copyFrom(baseKey.serialize()));
+                                                 .setBaseKey(ByteString.copyFrom(baseKey.getBytes()));
 
     if (preKeyId.isPresent()) {
       pending.setPreKeyId(preKeyId.get());
@@ -435,9 +432,9 @@ public class SessionState {
       return
           new UnacknowledgedPreKeyMessageItems(preKeyId,
                                                sessionStructure.getPendingPreKey().getSignedPreKeyId(),
-                                               Curve.decodePoint(sessionStructure.getPendingPreKey()
+                                               new ECPublicKey(sessionStructure.getPendingPreKey()
                                                                                  .getBaseKey()
-                                                                                 .toByteArray(), 0));
+                                                                                 .toByteArray()));
     } catch (InvalidKeyException e) {
       throw new AssertionError(e);
     }

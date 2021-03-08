@@ -25,9 +25,9 @@ public class PreKeyRecord {
     this.structure = PreKeyRecordStructure.newBuilder()
                                           .setId(id)
                                           .setPublicKey(ByteString.copyFrom(keyPair.getPublicKey()
-                                                                                   .serialize()))
+                                                                                   .getBytes()))
                                           .setPrivateKey(ByteString.copyFrom(keyPair.getPrivateKey()
-                                                                                    .serialize()))
+                                                                                    .getBytes()))
                                           .build();
   }
 
@@ -41,8 +41,8 @@ public class PreKeyRecord {
 
   public ECKeyPair getKeyPair() {
     try {
-      ECPublicKey publicKey = Curve.decodePoint(this.structure.getPublicKey().toByteArray(), 0);
-      ECPrivateKey privateKey = Curve.decodePrivatePoint(this.structure.getPrivateKey().toByteArray());
+      ECPublicKey publicKey = new ECPublicKey(this.structure.getPublicKey().toByteArray());
+      ECPrivateKey privateKey = new ECPrivateKey(this.structure.getPrivateKey().toByteArray());
 
       return new ECKeyPair(publicKey, privateKey);
     } catch (InvalidKeyException e) {

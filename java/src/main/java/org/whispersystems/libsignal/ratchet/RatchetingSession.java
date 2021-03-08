@@ -66,7 +66,7 @@ public class RatchetingSession {
 
       secrets.write(Curve.calculateAgreement(parameters.getTheirSignedPreKey(),
                                              parameters.getOurIdentityKey().getPrivateKey()));
-      secrets.write(Curve.calculateAgreement(parameters.getTheirIdentityKey().getPublicKey(),
+      secrets.write(Curve.calculateAgreement(parameters.getTheirIdentityKey(),
                                              parameters.getOurBaseKey().getPrivateKey()));
       secrets.write(Curve.calculateAgreement(parameters.getTheirSignedPreKey(),
                                              parameters.getOurBaseKey().getPrivateKey()));
@@ -100,7 +100,7 @@ public class RatchetingSession {
 
       secrets.write(getDiscontinuityBytes());
 
-      secrets.write(Curve.calculateAgreement(parameters.getTheirIdentityKey().getPublicKey(),
+      secrets.write(Curve.calculateAgreement(parameters.getTheirIdentityKey(),
                                              parameters.getOurSignedPreKey().getPrivateKey()));
       secrets.write(Curve.calculateAgreement(parameters.getTheirBaseKey(),
                                              parameters.getOurIdentityKey().getPrivateKey()));

@@ -7,9 +7,9 @@ import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.protocol.CiphertextMessage;
 import org.whispersystems.libsignal.protocol.PreKeySignalMessage;
 import org.whispersystems.libsignal.protocol.SignalMessage;
-import org.whispersystems.libsignal.state.SignalProtocolStore;
 import org.whispersystems.libsignal.state.PreKeyBundle;
 import org.whispersystems.libsignal.state.PreKeyRecord;
+import org.whispersystems.libsignal.state.SignalProtocolStore;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 import org.whispersystems.libsignal.util.Medium;
 
@@ -32,8 +32,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     PreKeyBundle alicePreKeyBundle = createAlicePreKeyBundle(aliceStore);
     PreKeyBundle bobPreKeyBundle = createBobPreKeyBundle(bobStore);
@@ -89,8 +89,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     PreKeyBundle alicePreKeyBundle = createAlicePreKeyBundle(aliceStore);
     PreKeyBundle bobPreKeyBundle = createBobPreKeyBundle(bobStore);
@@ -144,8 +144,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     PreKeyBundle alicePreKeyBundle = createAlicePreKeyBundle(aliceStore);
     PreKeyBundle bobPreKeyBundle = createBobPreKeyBundle(bobStore);
@@ -206,8 +206,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     PreKeyBundle alicePreKeyBundle = createAlicePreKeyBundle(aliceStore);
     PreKeyBundle bobPreKeyBundle = createBobPreKeyBundle(bobStore);
@@ -285,8 +285,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
     SessionBuilder bobSessionBuilder   = new SessionBuilder(bobStore, aliceAddress);
@@ -366,8 +366,8 @@ public class SimultaneousInitiateTests extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(new UserId(aliceStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
-    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(new UserId(bobStore.getIdentityKeyPair().getPublicKey()), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
     SessionBuilder aliceSessionBuilder = new SessionBuilder(aliceStore, bobAddress);
     SessionBuilder bobSessionBuilder   = new SessionBuilder(bobStore, aliceAddress);
@@ -468,10 +468,9 @@ public class SimultaneousInitiateTests extends TestCase {
     ECKeyPair aliceUnsignedPreKey   = Curve.generateKeyPair();
     int       aliceUnsignedPreKeyId = new Random().nextInt(Medium.MAX_VALUE);
     byte[]    aliceSignature        = Curve.calculateSignature(aliceStore.getIdentityKeyPair().getPrivateKey(),
-                                                               aliceSignedPreKey.getPublicKey().serialize());
+                                                               aliceSignedPreKey.getPublicKey().getBytes());
 
-    PreKeyBundle alicePreKeyBundle = new PreKeyBundle(1,
-                                                      aliceUnsignedPreKeyId, aliceUnsignedPreKey.getPublicKey(),
+    PreKeyBundle alicePreKeyBundle = new PreKeyBundle(aliceUnsignedPreKeyId, aliceUnsignedPreKey.getPublicKey(),
                                                       aliceSignedPreKeyId, aliceSignedPreKey.getPublicKey(),
                                                       aliceSignature, aliceStore.getIdentityKeyPair().getPublicKey());
 
@@ -485,10 +484,9 @@ public class SimultaneousInitiateTests extends TestCase {
     ECKeyPair bobUnsignedPreKey   = Curve.generateKeyPair();
     int       bobUnsignedPreKeyId = new Random().nextInt(Medium.MAX_VALUE);
     byte[]    bobSignature        = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
-                                                             bobSignedPreKey.getPublicKey().serialize());
+                                                             bobSignedPreKey.getPublicKey().getBytes());
 
-    PreKeyBundle bobPreKeyBundle = new PreKeyBundle(1,
-                                                    bobUnsignedPreKeyId, bobUnsignedPreKey.getPublicKey(),
+    PreKeyBundle bobPreKeyBundle = new PreKeyBundle(bobUnsignedPreKeyId, bobUnsignedPreKey.getPublicKey(),
                                                     bobSignedPreKeyId, bobSignedPreKey.getPublicKey(),
                                                     bobSignature, bobStore.getIdentityKeyPair().getPublicKey());
 

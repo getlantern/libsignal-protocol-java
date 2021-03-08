@@ -8,7 +8,6 @@ package org.whispersystems.libsignal.protocol;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.InvalidVersionException;
@@ -56,7 +55,7 @@ public class PreKeySignalMessage implements CiphertextMessage {
       this.serialized     = serialized;
       this.preKeyId       = preKeyWhisperMessage.hasPreKeyId() ? Optional.of(preKeyWhisperMessage.getPreKeyId()) : Optional.<Integer>absent();
       this.signedPreKeyId = preKeyWhisperMessage.hasSignedPreKeyId() ? preKeyWhisperMessage.getSignedPreKeyId() : -1;
-      this.baseKey        = Curve.decodePoint(preKeyWhisperMessage.getBaseKey().toByteArray(), 0);
+      this.baseKey        = new ECPublicKey(preKeyWhisperMessage.getBaseKey().toByteArray());
       this.message        = new SignalMessage(preKeyWhisperMessage.getMessage().toByteArray());
     } catch (InvalidProtocolBufferException | InvalidKeyException | LegacyMessageException e) {
       throw new InvalidMessageException(e);
@@ -76,7 +75,7 @@ public class PreKeySignalMessage implements CiphertextMessage {
     SignalProtos.PreKeySignalMessage.Builder builder =
         SignalProtos.PreKeySignalMessage.newBuilder()
                                         .setSignedPreKeyId(signedPreKeyId)
-                                        .setBaseKey(ByteString.copyFrom(baseKey.serialize()))
+                                        .setBaseKey(ByteString.copyFrom(baseKey.getBytes()))
                                         .setMessage(ByteString.copyFrom(message.serialize()));
 
     if (preKeyId.isPresent()) {
