@@ -10,11 +10,11 @@ import org.whispersystems.curve25519.Curve25519KeyPair;
 import org.whispersystems.curve25519.VrfSignatureVerificationFailedException;
 import org.whispersystems.libsignal.InvalidKeyException;
 
+import java.util.Arrays;
+
 import static org.whispersystems.curve25519.Curve25519.BEST;
 
 public class Curve {
-
-  public  static final int DJB_TYPE   = 0x05;
 
   public static boolean isNative() {
     return Curve25519.getInstance(BEST).isNative();
@@ -30,24 +30,15 @@ public class Curve {
   public static ECPublicKey decodePoint(byte[] bytes, int offset)
       throws InvalidKeyException
   {
-    if (bytes == null || bytes.length - offset < 1) {
-      throw new InvalidKeyException("No key type identifier");
-    }
+      if (bytes == null || bytes.length < 32) {
+        throw new InvalidKeyException("Bad key length: " + bytes.length);
+      }
 
-    int type = bytes[offset] & 0xFF;
+      if (bytes.length > 32) {
+        bytes = Arrays.copyOf(bytes, 32);
+      }
 
-    switch (type) {
-      case Curve.DJB_TYPE:
-        if (bytes.length - offset < 33) {
-          throw new InvalidKeyException("Bad key length: " + bytes.length);
-        }
-
-        byte[] keyBytes = new byte[32];
-        System.arraycopy(bytes, offset+1, keyBytes, 0, keyBytes.length);
-        return new DjbECPublicKey(keyBytes);
-      default:
-        throw new InvalidKeyException("Bad key type: " + type);
-    }
+      return new DjbECPublicKey(bytes);
   }
 
   public static ECPrivateKey decodePrivatePoint(byte[] bytes) {
@@ -65,17 +56,10 @@ public class Curve {
       throw new InvalidKeyException("private value is null");
     }
 
-    if (publicKey.getType() != privateKey.getType()) {
-      throw new InvalidKeyException("Public and private keys must be of the same type!");
-    }
 
-    if (publicKey.getType() == DJB_TYPE) {
-      return Curve25519.getInstance(BEST)
-                       .calculateAgreement(((DjbECPublicKey) publicKey).getPublicKey(),
-                                           ((DjbECPrivateKey) privateKey).getPrivateKey());
-    } else {
-      throw new InvalidKeyException("Unknown type: " + publicKey.getType());
-    }
+    return Curve25519.getInstance(BEST)
+                     .calculateAgreement(((DjbECPublicKey) publicKey).getPublicKey(),
+                                         ((DjbECPrivateKey) privateKey).getPrivateKey());
   }
 
   public static boolean verifySignature(ECPublicKey signingKey, byte[] message, byte[] signature)
@@ -85,12 +69,8 @@ public class Curve {
       throw new InvalidKeyException("Values must not be null");
     }
 
-    if (signingKey.getType() == DJB_TYPE) {
-      return Curve25519.getInstance(BEST)
-                       .verifySignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
-    } else {
-      throw new InvalidKeyException("Unknown type: " + signingKey.getType());
-    }
+    return Curve25519.getInstance(BEST)
+                     .verifySignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
   }
 
   public static byte[] calculateSignature(ECPrivateKey signingKey, byte[] message)
@@ -100,12 +80,8 @@ public class Curve {
       throw new InvalidKeyException("Values must not be null");
     }
 
-    if (signingKey.getType() == DJB_TYPE) {
-      return Curve25519.getInstance(BEST)
-                       .calculateSignature(((DjbECPrivateKey) signingKey).getPrivateKey(), message);
-    } else {
-      throw new InvalidKeyException("Unknown type: " + signingKey.getType());
-    }
+    return Curve25519.getInstance(BEST)
+                     .calculateSignature(((DjbECPrivateKey) signingKey).getPrivateKey(), message);
   }
 
   public static byte[] calculateVrfSignature(ECPrivateKey signingKey, byte[] message)
@@ -115,12 +91,8 @@ public class Curve {
       throw new InvalidKeyException("Values must not be null");
     }
 
-    if (signingKey.getType() == DJB_TYPE) {
-      return Curve25519.getInstance(BEST)
-                       .calculateVrfSignature(((DjbECPrivateKey)signingKey).getPrivateKey(), message);
-    } else {
-      throw new InvalidKeyException("Unknown type: " + signingKey.getType());
-    }
+    return Curve25519.getInstance(BEST)
+                     .calculateVrfSignature(((DjbECPrivateKey)signingKey).getPrivateKey(), message);
   }
 
   public static byte[] verifyVrfSignature(ECPublicKey signingKey, byte[] message, byte[] signature)
@@ -130,12 +102,8 @@ public class Curve {
       throw new InvalidKeyException("Values must not be null");
     }
 
-    if (signingKey.getType() == DJB_TYPE) {
-      return Curve25519.getInstance(BEST)
-                       .verifyVrfSignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
-    } else {
-      throw new InvalidKeyException("Unknown type: " + signingKey.getType());
-    }
+    return Curve25519.getInstance(BEST)
+                     .verifyVrfSignature(((DjbECPublicKey) signingKey).getPublicKey(), message, signature);
   }
 
 }

@@ -8,5 +8,4 @@ package org.whispersystems.libsignal.ecc;
 
 public interface ECPrivateKey {
   public byte[] serialize();
-  public int getType();
 }

@@ -21,13 +21,7 @@ public class DjbECPublicKey implements ECPublicKey {
 
   @Override
   public byte[] serialize() {
-    byte[] type = {Curve.DJB_TYPE};
-    return ByteUtil.combine(type, publicKey);
-  }
-
-  @Override
-  public int getType() {
-    return Curve.DJB_TYPE;
+    return publicKey;
   }
 
   @Override
