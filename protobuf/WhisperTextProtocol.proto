@@ -16,8 +16,7 @@ message PreKeySignalMessage {
   optional uint32 preKeyId       = 1;
   optional uint32 signedPreKeyId = 2;
   optional bytes  baseKey        = 3;
-  optional bytes  identityKey    = 4;
-  optional bytes  message        = 5; // SignalMessage
+  optional bytes  message        = 4; // SignalMessage
 }
 
 message KeyExchangeMessage {

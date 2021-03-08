@@ -25,7 +25,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
   private final Optional<Integer> preKeyId;
   private final int               signedPreKeyId;
   private final ECPublicKey       baseKey;
-  private final IdentityKey       identityKey;
   private final SignalMessage     message;
   private final byte[]            serialized;
 
@@ -49,7 +48,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
 
       if (!preKeyWhisperMessage.hasSignedPreKeyId()  ||
           !preKeyWhisperMessage.hasBaseKey()         ||
-          !preKeyWhisperMessage.hasIdentityKey()     ||
           !preKeyWhisperMessage.hasMessage())
       {
         throw new InvalidMessageException("Incomplete message.");
@@ -59,7 +57,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
       this.preKeyId       = preKeyWhisperMessage.hasPreKeyId() ? Optional.of(preKeyWhisperMessage.getPreKeyId()) : Optional.<Integer>absent();
       this.signedPreKeyId = preKeyWhisperMessage.hasSignedPreKeyId() ? preKeyWhisperMessage.getSignedPreKeyId() : -1;
       this.baseKey        = Curve.decodePoint(preKeyWhisperMessage.getBaseKey().toByteArray(), 0);
-      this.identityKey    = new IdentityKey(Curve.decodePoint(preKeyWhisperMessage.getIdentityKey().toByteArray(), 0));
       this.message        = new SignalMessage(preKeyWhisperMessage.getMessage().toByteArray());
     } catch (InvalidProtocolBufferException | InvalidKeyException | LegacyMessageException e) {
       throw new InvalidMessageException(e);
@@ -67,21 +64,19 @@ public class PreKeySignalMessage implements CiphertextMessage {
   }
 
   public PreKeySignalMessage(int messageVersion, Optional<Integer> preKeyId,
-                             int signedPreKeyId, ECPublicKey baseKey, IdentityKey identityKey,
+                             int signedPreKeyId, ECPublicKey baseKey,
                              SignalMessage message)
   {
     this.version        = messageVersion;
     this.preKeyId       = preKeyId;
     this.signedPreKeyId = signedPreKeyId;
     this.baseKey        = baseKey;
-    this.identityKey    = identityKey;
     this.message        = message;
 
     SignalProtos.PreKeySignalMessage.Builder builder =
         SignalProtos.PreKeySignalMessage.newBuilder()
                                         .setSignedPreKeyId(signedPreKeyId)
                                         .setBaseKey(ByteString.copyFrom(baseKey.serialize()))
-                                        .setIdentityKey(ByteString.copyFrom(identityKey.serialize()))
                                         .setMessage(ByteString.copyFrom(message.serialize()));
 
     if (preKeyId.isPresent()) {
@@ -96,10 +91,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
 
   public int getMessageVersion() {
     return version;
-  }
-
-  public IdentityKey getIdentityKey() {
-    return identityKey;
   }
 
   public Optional<Integer> getPreKeyId() {

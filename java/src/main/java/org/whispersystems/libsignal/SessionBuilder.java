@@ -92,26 +92,17 @@ public class SessionBuilder {
    *                                                             that corresponds to the PreKey ID in
    *                                                             the message.
    * @throws org.whispersystems.libsignal.InvalidKeyException when the message is formatted incorrectly.
-   * @throws org.whispersystems.libsignal.UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
    */
   /*package*/ Optional<Integer> process(SessionRecord sessionRecord, PreKeySignalMessage message)
-      throws InvalidKeyIdException, InvalidKeyException, UntrustedIdentityException
+      throws InvalidKeyIdException, InvalidKeyException
   {
-    IdentityKey theirIdentityKey = message.getIdentityKey();
-
-    if (!identityKeyStore.isTrustedIdentity(remoteAddress, theirIdentityKey, IdentityKeyStore.Direction.RECEIVING)) {
-      throw new UntrustedIdentityException(remoteAddress.getUserId(), theirIdentityKey);
-    }
-
     Optional<Integer> unsignedPreKeyId = processV3(sessionRecord, message);
-
-    identityKeyStore.saveIdentity(remoteAddress, theirIdentityKey);
 
     return unsignedPreKeyId;
   }
 
   private Optional<Integer> processV3(SessionRecord sessionRecord, PreKeySignalMessage message)
-      throws UntrustedIdentityException, InvalidKeyIdException, InvalidKeyException
+      throws InvalidKeyIdException, InvalidKeyException
   {
 
     if (sessionRecord.hasSessionState(message.getMessageVersion(), message.getBaseKey().serialize())) {
@@ -124,7 +115,7 @@ public class SessionBuilder {
     BobSignalProtocolParameters.Builder parameters = BobSignalProtocolParameters.newBuilder();
 
     parameters.setTheirBaseKey(message.getBaseKey())
-              .setTheirIdentityKey(message.getIdentityKey())
+              .setTheirIdentityKey(remoteAddress.getUserId().getIdentityKey())
               .setOurIdentityKey(identityKeyStore.getIdentityKeyPair())
               .setOurSignedPreKey(ourSignedPreKey)
               .setOurRatchetKey(ourSignedPreKey);
@@ -155,16 +146,9 @@ public class SessionBuilder {
    * @param preKey A PreKey for the destination recipient, retrieved from a server.
    * @throws InvalidKeyException when the {@link org.whispersystems.libsignal.state.PreKeyBundle} is
    *                             badly formatted.
-   * @throws org.whispersystems.libsignal.UntrustedIdentityException when the sender's
-   *                                                                  {@link IdentityKey} is not
-   *                                                                  trusted.
    */
-  public void process(PreKeyBundle preKey) throws InvalidKeyException, UntrustedIdentityException {
+  public void process(PreKeyBundle preKey) throws InvalidKeyException {
     synchronized (SessionCipher.SESSION_LOCK) {
-      if (!identityKeyStore.isTrustedIdentity(remoteAddress, preKey.getIdentityKey(), IdentityKeyStore.Direction.SENDING)) {
-        throw new UntrustedIdentityException(remoteAddress.getUserId(), preKey.getIdentityKey());
-      }
-
       if (preKey.getSignedPreKey() != null &&
           !Curve.verifySignature(preKey.getIdentityKey().getPublicKey(),
                                  preKey.getSignedPreKey().serialize(),
@@ -200,7 +184,6 @@ public class SessionBuilder {
       sessionRecord.getSessionState().setUnacknowledgedPreKeyMessage(theirOneTimePreKeyId, preKey.getSignedPreKeyId(), ourBaseKey.getPublicKey());
       sessionRecord.getSessionState().setAliceBaseKey(ourBaseKey.getPublicKey().serialize());
 
-      identityKeyStore.saveIdentity(remoteAddress, preKey.getIdentityKey());
       sessionStore.storeSession(remoteAddress, sessionRecord);
     }
   }

@@ -28,7 +28,7 @@ public class SessionCipherTest extends TestCase {
 
   public void testBasicSessionV3()
       throws InvalidKeyException, DuplicateMessageException,
-      LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException, UntrustedIdentityException
+      LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException
   {
     SessionRecord aliceSessionRecord = new SessionRecord();
     SessionRecord bobSessionRecord   = new SessionRecord();
@@ -70,7 +70,7 @@ public class SessionCipherTest extends TestCase {
   }
 
   private void runInteraction(SessionRecord aliceSessionRecord, SessionRecord bobSessionRecord)
-      throws DuplicateMessageException, LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException, UntrustedIdentityException {
+      throws DuplicateMessageException, LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 

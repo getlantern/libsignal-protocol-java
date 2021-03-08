@@ -30,6 +30,10 @@ public class DeviceId {
         return new UUID(firstLong, secondLong);
     }
 
+    public static DeviceId random() {
+        return new DeviceId(UUID.randomUUID());
+    }
+
     private static byte[] toBytes(UUID uuid) {
         ByteBuffer bb = ByteBuffer.wrap(new byte[16]);
         bb.putLong(uuid.getMostSignificantBits());

@@ -35,21 +35,6 @@ public class InMemorySignalProtocolStore implements SignalProtocolStore {
   }
 
   @Override
-  public boolean saveIdentity(SignalProtocolAddress address, IdentityKey identityKey) {
-    return identityKeyStore.saveIdentity(address, identityKey);
-  }
-
-  @Override
-  public boolean isTrustedIdentity(SignalProtocolAddress address, IdentityKey identityKey, Direction direction) {
-    return identityKeyStore.isTrustedIdentity(address, identityKey, direction);
-  }
-
-  @Override
-  public IdentityKey getIdentity(SignalProtocolAddress address) {
-    return identityKeyStore.getIdentity(address);
-  }
-
-  @Override
   public PreKeyRecord loadPreKey(int preKeyId) throws InvalidKeyIdException {
     return preKeyStore.loadPreKey(preKeyId);
   }

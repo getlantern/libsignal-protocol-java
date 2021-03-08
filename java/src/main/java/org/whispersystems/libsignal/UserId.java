@@ -30,12 +30,16 @@ public class UserId {
         this.bytes = bytes;
     }
 
+    public UserId(IdentityKey identityKey) {
+        this(identityKey.serialize());
+    }
+
     public UserId(String string) {
         this(base32.decodeFromString(string.toLowerCase()));
     }
 
-    public ECPublicKey toKey() throws InvalidKeyException {
-        return Curve.decodePoint(bytes, 0);
+    public IdentityKey getIdentityKey() throws InvalidKeyException {
+        return new IdentityKey(Curve.decodePoint(bytes, 0));
     }
 
     public String toString() {

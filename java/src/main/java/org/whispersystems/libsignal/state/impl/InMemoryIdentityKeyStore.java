@@ -15,8 +15,6 @@ import java.util.Map;
 
 public class InMemoryIdentityKeyStore implements IdentityKeyStore {
 
-  private final Map<SignalProtocolAddress, IdentityKey> trustedKeys = new HashMap<>();
-
   private final IdentityKeyPair identityKeyPair;
 
   public InMemoryIdentityKeyStore(IdentityKeyPair identityKeyPair) {
@@ -26,28 +24,5 @@ public class InMemoryIdentityKeyStore implements IdentityKeyStore {
   @Override
   public IdentityKeyPair getIdentityKeyPair() {
     return identityKeyPair;
-  }
-
-  @Override
-  public boolean saveIdentity(SignalProtocolAddress address, IdentityKey identityKey) {
-    IdentityKey existing = trustedKeys.get(address);
-
-    if (!identityKey.equals(existing)) {
-      trustedKeys.put(address, identityKey);
-      return true;
-    } else {
-      return false;
-    }
-  }
-
-  @Override
-  public boolean isTrustedIdentity(SignalProtocolAddress address, IdentityKey identityKey, Direction direction) {
-    IdentityKey trusted = trustedKeys.get(address);
-    return (trusted == null || trusted.equals(identityKey));
-  }
-
-  @Override
-  public IdentityKey getIdentity(SignalProtocolAddress address) {
-    return trustedKeys.get(address);
   }
 }

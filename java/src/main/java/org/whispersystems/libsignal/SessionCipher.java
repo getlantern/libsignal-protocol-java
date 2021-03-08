@@ -88,7 +88,7 @@ public class SessionCipher {
    * @param  paddedMessage The plaintext message bytes, optionally padded to a constant multiple.
    * @return A ciphertext message encrypted to the recipient+device tuple.
    */
-  public CiphertextMessage encrypt(byte[] paddedMessage) throws UntrustedIdentityException {
+  public CiphertextMessage encrypt(byte[] paddedMessage) {
     synchronized (SESSION_LOCK) {
       SessionRecord sessionRecord   = sessionStore.loadSession(remoteAddress);
       SessionState  sessionState    = sessionRecord.getSessionState();
@@ -110,17 +110,11 @@ public class SessionCipher {
 
         ciphertextMessage = new PreKeySignalMessage(sessionVersion, items.getPreKeyId(),
                                                     items.getSignedPreKeyId(), items.getBaseKey(),
-                                                    sessionState.getLocalIdentityKey(),
                                                     (SignalMessage) ciphertextMessage);
       }
 
       sessionState.setSenderChainKey(chainKey.getNextChainKey());
 
-      if (!identityKeyStore.isTrustedIdentity(remoteAddress, sessionState.getRemoteIdentityKey(), IdentityKeyStore.Direction.SENDING)) {
-        throw new UntrustedIdentityException(remoteAddress.getUserId(), sessionState.getRemoteIdentityKey());
-      }
-
-      identityKeyStore.saveIdentity(remoteAddress, sessionState.getRemoteIdentityKey());
       sessionStore.storeSession(remoteAddress, sessionRecord);
       return ciphertextMessage;
     }
@@ -139,11 +133,10 @@ public class SessionCipher {
    * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libsignal.state.PreKeyRecord}
    *                               that corresponds to the PreKey ID in the message.
    * @throws InvalidKeyException when the message is formatted incorrectly.
-   * @throws UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
    */
   public byte[] decrypt(PreKeySignalMessage ciphertext)
       throws DuplicateMessageException, LegacyMessageException, InvalidMessageException,
-             InvalidKeyIdException, InvalidKeyException, UntrustedIdentityException
+             InvalidKeyIdException, InvalidKeyException
   {
     return decrypt(ciphertext, new NullDecryptionCallback());
   }
@@ -167,11 +160,10 @@ public class SessionCipher {
    * @throws InvalidKeyIdException when there is no local {@link org.whispersystems.libsignal.state.PreKeyRecord}
    *                               that corresponds to the PreKey ID in the message.
    * @throws InvalidKeyException when the message is formatted incorrectly.
-   * @throws UntrustedIdentityException when the {@link IdentityKey} of the sender is untrusted.
    */
   public byte[] decrypt(PreKeySignalMessage ciphertext, DecryptionCallback callback)
       throws DuplicateMessageException, LegacyMessageException, InvalidMessageException,
-             InvalidKeyIdException, InvalidKeyException, UntrustedIdentityException
+             InvalidKeyIdException, InvalidKeyException
   {
     synchronized (SESSION_LOCK) {
       SessionRecord     sessionRecord    = sessionStore.loadSession(remoteAddress);
@@ -204,7 +196,7 @@ public class SessionCipher {
    */
   public byte[] decrypt(SignalMessage ciphertext)
       throws InvalidMessageException, DuplicateMessageException, LegacyMessageException,
-      NoSessionException, UntrustedIdentityException
+      NoSessionException
   {
     return decrypt(ciphertext, new NullDecryptionCallback());
   }
@@ -229,7 +221,7 @@ public class SessionCipher {
    */
   public byte[] decrypt(SignalMessage ciphertext, DecryptionCallback callback)
       throws InvalidMessageException, DuplicateMessageException, LegacyMessageException,
-             NoSessionException, UntrustedIdentityException
+             NoSessionException
   {
     synchronized (SESSION_LOCK) {
 
@@ -239,12 +231,6 @@ public class SessionCipher {
 
       SessionRecord sessionRecord = sessionStore.loadSession(remoteAddress);
       byte[]        plaintext     = decrypt(sessionRecord, ciphertext);
-
-      if (!identityKeyStore.isTrustedIdentity(remoteAddress, sessionRecord.getSessionState().getRemoteIdentityKey(), IdentityKeyStore.Direction.RECEIVING)) {
-        throw new UntrustedIdentityException(remoteAddress.getUserId(), sessionRecord.getSessionState().getRemoteIdentityKey());
-      }
-
-      identityKeyStore.saveIdentity(remoteAddress, sessionRecord.getSessionState().getRemoteIdentityKey());
 
       callback.handlePlaintext(plaintext);
 
