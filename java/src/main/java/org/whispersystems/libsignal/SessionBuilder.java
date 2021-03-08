@@ -22,7 +22,6 @@ import org.whispersystems.libsignal.state.SessionRecord;
 import org.whispersystems.libsignal.state.SessionStore;
 import org.whispersystems.libsignal.state.SignalProtocolStore;
 import org.whispersystems.libsignal.state.SignedPreKeyStore;
-import org.whispersystems.libsignal.util.Medium;
 import org.whispersystems.libsignal.util.guava.Optional;
 
 /**
@@ -101,7 +100,7 @@ public class SessionBuilder {
     IdentityKey theirIdentityKey = message.getIdentityKey();
 
     if (!identityKeyStore.isTrustedIdentity(remoteAddress, theirIdentityKey, IdentityKeyStore.Direction.RECEIVING)) {
-      throw new UntrustedIdentityException(remoteAddress.getName(), theirIdentityKey);
+      throw new UntrustedIdentityException(remoteAddress.getUserId(), theirIdentityKey);
     }
 
     Optional<Integer> unsignedPreKeyId = processV3(sessionRecord, message);
@@ -140,8 +139,6 @@ public class SessionBuilder {
 
     RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
-    sessionRecord.getSessionState().setLocalRegistrationId(identityKeyStore.getLocalRegistrationId());
-    sessionRecord.getSessionState().setRemoteRegistrationId(message.getRegistrationId());
     sessionRecord.getSessionState().setAliceBaseKey(message.getBaseKey().serialize());
 
     if (message.getPreKeyId().isPresent()) {
@@ -165,7 +162,7 @@ public class SessionBuilder {
   public void process(PreKeyBundle preKey) throws InvalidKeyException, UntrustedIdentityException {
     synchronized (SessionCipher.SESSION_LOCK) {
       if (!identityKeyStore.isTrustedIdentity(remoteAddress, preKey.getIdentityKey(), IdentityKeyStore.Direction.SENDING)) {
-        throw new UntrustedIdentityException(remoteAddress.getName(), preKey.getIdentityKey());
+        throw new UntrustedIdentityException(remoteAddress.getUserId(), preKey.getIdentityKey());
       }
 
       if (preKey.getSignedPreKey() != null &&
@@ -201,8 +198,6 @@ public class SessionBuilder {
       RatchetingSession.initializeSession(sessionRecord.getSessionState(), parameters.create());
 
       sessionRecord.getSessionState().setUnacknowledgedPreKeyMessage(theirOneTimePreKeyId, preKey.getSignedPreKeyId(), ourBaseKey.getPublicKey());
-      sessionRecord.getSessionState().setLocalRegistrationId(identityKeyStore.getLocalRegistrationId());
-      sessionRecord.getSessionState().setRemoteRegistrationId(preKey.getRegistrationId());
       sessionRecord.getSessionState().setAliceBaseKey(ourBaseKey.getPublicKey().serialize());
 
       identityKeyStore.saveIdentity(remoteAddress, preKey.getIdentityKey());

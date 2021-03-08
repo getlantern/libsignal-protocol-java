@@ -1,44 +1,50 @@
 /**
  * Copyright (C) 2014-2016 Open Whisper Systems
- *
+ * <p>
  * Licensed according to the LICENSE file in this repository.
  */
 package org.whispersystems.libsignal;
 
+import java.util.Objects;
+
 public class SignalProtocolAddress {
 
-  private final String name;
-  private final int    deviceId;
+    private final UserId userId;
+    private final DeviceId deviceId;
 
-  public SignalProtocolAddress(String name, int deviceId) {
-    this.name     = name;
-    this.deviceId = deviceId;
-  }
+    public SignalProtocolAddress(UserId userId, DeviceId deviceId) {
+        this.userId = userId;
+        this.deviceId = deviceId;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public SignalProtocolAddress(String userId, int deviceId) {
+        this(new UserId(userId), new DeviceId(deviceId));
+    }
 
-  public int getDeviceId() {
-    return deviceId;
-  }
+    public UserId getUserId() {
+        return userId;
+    }
 
-  @Override
-  public String toString() {
-    return name + ":" + deviceId;
-  }
+    public DeviceId getDeviceId() {
+        return deviceId;
+    }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)                       return false;
-    if (!(other instanceof SignalProtocolAddress)) return false;
+    @Override
+    public String toString() {
+        return userId.toString() + ":" + deviceId.toString();
+    }
 
-    SignalProtocolAddress that = (SignalProtocolAddress)other;
-    return this.name.equals(that.name) && this.deviceId == that.deviceId;
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SignalProtocolAddress that = (SignalProtocolAddress) o;
+        return userId.equals(that.userId) &&
+                deviceId.equals(that.deviceId);
+    }
 
-  @Override
-  public int hashCode() {
-    return this.name.hashCode() ^ this.deviceId;
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(userId, deviceId);
+    }
 }

@@ -16,8 +16,6 @@ import org.whispersystems.libsignal.ecc.ECPublicKey;
  */
 public class PreKeyBundle {
 
-  private int         registrationId;
-
   private int         deviceId;
 
   private int         preKeyId;
@@ -29,11 +27,10 @@ public class PreKeyBundle {
 
   private IdentityKey identityKey;
 
-  public PreKeyBundle(int registrationId, int deviceId, int preKeyId, ECPublicKey preKeyPublic,
+  public PreKeyBundle(int deviceId, int preKeyId, ECPublicKey preKeyPublic,
                       int signedPreKeyId, ECPublicKey signedPreKeyPublic, byte[] signedPreKeySignature,
                       IdentityKey identityKey)
   {
-    this.registrationId        = registrationId;
     this.deviceId              = deviceId;
     this.preKeyId              = preKeyId;
     this.preKeyPublic          = preKeyPublic;
@@ -90,12 +87,5 @@ public class PreKeyBundle {
    */
   public IdentityKey getIdentityKey() {
     return identityKey;
-  }
-
-  /**
-   * @return the registration ID associated with this PreKey.
-   */
-  public int getRegistrationId() {
-    return registrationId;
   }
 }

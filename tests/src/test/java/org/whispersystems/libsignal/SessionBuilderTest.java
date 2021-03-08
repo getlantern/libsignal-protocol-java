@@ -29,7 +29,7 @@ public class SessionBuilderTest extends TestCase {
 
     SignalProtocolStore bobStore      = new TestInMemorySignalProtocolStore();
     ECKeyPair    bobPreKeyPair = Curve.generateKeyPair();
-    PreKeyBundle bobPreKey     = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey     = new PreKeyBundle(1,
                                                   31337, bobPreKeyPair.getPublicKey(),
                                                   0, null, null,
                                                   bobStore.getIdentityKeyPair().getPublicKey());
@@ -54,7 +54,7 @@ public class SessionBuilderTest extends TestCase {
           byte[]       bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                                            bobSignedPreKeyPair.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(),
                                               bobSignedPreKeySignature,
@@ -104,8 +104,7 @@ public class SessionBuilderTest extends TestCase {
     bobPreKeyPair            = Curve.generateKeyPair();
     bobSignedPreKeyPair      = Curve.generateKeyPair();
     bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(), bobSignedPreKeyPair.getPublicKey().serialize());
-    bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(),
-                                 1, 31338, bobPreKeyPair.getPublicKey(),
+    bobPreKey = new PreKeyBundle(1, 31338, bobPreKeyPair.getPublicKey(),
                                  23, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                  bobStore.getIdentityKeyPair().getPublicKey());
 
@@ -125,7 +124,7 @@ public class SessionBuilderTest extends TestCase {
     plaintext = bobSessionCipher.decrypt(new PreKeySignalMessage(outgoingMessage.serialize()));
     assertTrue(new String(plaintext).equals(originalMessage));
 
-    bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    bobPreKey = new PreKeyBundle(1,
                                  31337, Curve.generateKeyPair().getPublicKey(),
                                  23, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                  aliceStore.getIdentityKeyPair().getPublicKey());
@@ -156,7 +155,7 @@ public class SessionBuilderTest extends TestCase {
 
       modifiedSignature[i/8] ^= (0x01 << (i % 8));
 
-      PreKeyBundle bobPreKey = new PreKeyBundle(bobIdentityKeyStore.getLocalRegistrationId(), 1,
+      PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                                 31337, bobPreKeyPair.getPublicKey(),
                                                 22, bobSignedPreKeyPair.getPublicKey(), modifiedSignature,
                                                 bobIdentityKeyStore.getIdentityKeyPair().getPublicKey());
@@ -169,7 +168,7 @@ public class SessionBuilderTest extends TestCase {
       }
     }
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobIdentityKeyStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobIdentityKeyStore.getIdentityKeyPair().getPublicKey());
@@ -188,7 +187,7 @@ public class SessionBuilderTest extends TestCase {
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                                   bobSignedPreKeyPair.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               31337, bobPreKeyPair.getPublicKey(),
                                               0, null, null,
                                               bobStore.getIdentityKeyPair().getPublicKey());
@@ -216,7 +215,7 @@ public class SessionBuilderTest extends TestCase {
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                                   bobSignedPreKeyPair.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
@@ -270,7 +269,7 @@ public class SessionBuilderTest extends TestCase {
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                                   bobSignedPreKeyPair.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               31337, bobPreKeyPair.getPublicKey(),
                                               22, bobSignedPreKeyPair.getPublicKey(), bobSignedPreKeySignature,
                                               bobStore.getIdentityKeyPair().getPublicKey());
@@ -323,7 +322,7 @@ public class SessionBuilderTest extends TestCase {
     byte[]    bobSignedPreKeySignature = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                                   bobSignedPreKeyPair.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKey = new PreKeyBundle(bobStore.getLocalRegistrationId(), 1,
+    PreKeyBundle bobPreKey = new PreKeyBundle(1,
                                               0, null,
                                               22, bobSignedPreKeyPair.getPublicKey(),
                                               bobSignedPreKeySignature,

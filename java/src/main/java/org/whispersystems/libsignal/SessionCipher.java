@@ -21,7 +21,6 @@ import org.whispersystems.libsignal.state.SessionRecord;
 import org.whispersystems.libsignal.state.SessionState;
 import org.whispersystems.libsignal.state.SessionStore;
 import org.whispersystems.libsignal.state.SignedPreKeyStore;
-import org.whispersystems.libsignal.util.ByteUtil;
 import org.whispersystems.libsignal.util.Pair;
 import org.whispersystems.libsignal.util.guava.Optional;
 
@@ -108,9 +107,8 @@ public class SessionCipher {
 
       if (sessionState.hasUnacknowledgedPreKeyMessage()) {
         UnacknowledgedPreKeyMessageItems items = sessionState.getUnacknowledgedPreKeyMessageItems();
-        int localRegistrationId = sessionState.getLocalRegistrationId();
 
-        ciphertextMessage = new PreKeySignalMessage(sessionVersion, localRegistrationId, items.getPreKeyId(),
+        ciphertextMessage = new PreKeySignalMessage(sessionVersion, items.getPreKeyId(),
                                                     items.getSignedPreKeyId(), items.getBaseKey(),
                                                     sessionState.getLocalIdentityKey(),
                                                     (SignalMessage) ciphertextMessage);
@@ -119,7 +117,7 @@ public class SessionCipher {
       sessionState.setSenderChainKey(chainKey.getNextChainKey());
 
       if (!identityKeyStore.isTrustedIdentity(remoteAddress, sessionState.getRemoteIdentityKey(), IdentityKeyStore.Direction.SENDING)) {
-        throw new UntrustedIdentityException(remoteAddress.getName(), sessionState.getRemoteIdentityKey());
+        throw new UntrustedIdentityException(remoteAddress.getUserId(), sessionState.getRemoteIdentityKey());
       }
 
       identityKeyStore.saveIdentity(remoteAddress, sessionState.getRemoteIdentityKey());
@@ -243,7 +241,7 @@ public class SessionCipher {
       byte[]        plaintext     = decrypt(sessionRecord, ciphertext);
 
       if (!identityKeyStore.isTrustedIdentity(remoteAddress, sessionRecord.getSessionState().getRemoteIdentityKey(), IdentityKeyStore.Direction.RECEIVING)) {
-        throw new UntrustedIdentityException(remoteAddress.getName(), sessionRecord.getSessionState().getRemoteIdentityKey());
+        throw new UntrustedIdentityException(remoteAddress.getUserId(), sessionRecord.getSessionState().getRemoteIdentityKey());
       }
 
       identityKeyStore.saveIdentity(remoteAddress, sessionRecord.getSessionState().getRemoteIdentityKey());
@@ -319,13 +317,6 @@ public class SessionCipher {
     sessionState.clearUnacknowledgedPreKeyMessage();
 
     return plaintext;
-  }
-
-  public int getRemoteRegistrationId() {
-    synchronized (SESSION_LOCK) {
-      SessionRecord record = sessionStore.loadSession(remoteAddress);
-      return record.getSessionState().getRemoteRegistrationId();
-    }
   }
 
   public int getSessionVersion() {

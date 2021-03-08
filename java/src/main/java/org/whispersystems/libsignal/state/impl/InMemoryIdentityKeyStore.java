@@ -18,21 +18,14 @@ public class InMemoryIdentityKeyStore implements IdentityKeyStore {
   private final Map<SignalProtocolAddress, IdentityKey> trustedKeys = new HashMap<>();
 
   private final IdentityKeyPair identityKeyPair;
-  private final int             localRegistrationId;
 
-  public InMemoryIdentityKeyStore(IdentityKeyPair identityKeyPair, int localRegistrationId) {
+  public InMemoryIdentityKeyStore(IdentityKeyPair identityKeyPair) {
     this.identityKeyPair     = identityKeyPair;
-    this.localRegistrationId = localRegistrationId;
   }
 
   @Override
   public IdentityKeyPair getIdentityKeyPair() {
     return identityKeyPair;
-  }
-
-  @Override
-  public int getLocalRegistrationId() {
-    return localRegistrationId;
   }
 
   @Override

@@ -7,7 +7,7 @@ import org.whispersystems.libsignal.util.KeyHelper;
 
 public class TestInMemorySignalProtocolStore extends InMemorySignalProtocolStore {
   public TestInMemorySignalProtocolStore() {
-    super(generateIdentityKeyPair(), generateRegistrationId());
+    super(generateIdentityKeyPair());
   }
 
   private static IdentityKeyPair generateIdentityKeyPair() {
@@ -15,9 +15,5 @@ public class TestInMemorySignalProtocolStore extends InMemorySignalProtocolStore
 
     return new IdentityKeyPair(new IdentityKey(identityKeyPairKeys.getPublicKey()),
                                                identityKeyPairKeys.getPrivateKey());
-  }
-
-  private static int generateRegistrationId() {
-    return KeyHelper.generateRegistrationId(false);
   }
 }

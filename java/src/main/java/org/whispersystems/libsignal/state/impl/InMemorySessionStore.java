@@ -5,6 +5,7 @@
  */
 package org.whispersystems.libsignal.state.impl;
 
+import org.whispersystems.libsignal.DeviceId;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.state.SessionRecord;
 import org.whispersystems.libsignal.state.SessionStore;
@@ -35,12 +36,11 @@ public class InMemorySessionStore implements SessionStore {
   }
 
   @Override
-  public synchronized List<Integer> getSubDeviceSessions(String name) {
-    List<Integer> deviceIds = new LinkedList<>();
+  public synchronized List<DeviceId> getSubDeviceSessions(String name) {
+    List<DeviceId> deviceIds = new LinkedList<>();
 
     for (SignalProtocolAddress key : sessions.keySet()) {
-      if (key.getName().equals(name) &&
-          key.getDeviceId() != 1)
+      if (key.getUserId().equals(name))
       {
         deviceIds.add(key.getDeviceId());
       }
@@ -67,7 +67,7 @@ public class InMemorySessionStore implements SessionStore {
   @Override
   public synchronized void deleteAllSessions(String name) {
     for (SignalProtocolAddress key : sessions.keySet()) {
-      if (key.getName().equals(name)) {
+      if (key.getUserId().equals(name)) {
         sessions.remove(key);
       }
     }

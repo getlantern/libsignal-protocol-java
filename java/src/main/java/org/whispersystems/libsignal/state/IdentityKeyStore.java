@@ -28,16 +28,6 @@ public interface IdentityKeyStore {
   public IdentityKeyPair getIdentityKeyPair();
 
   /**
-   * Return the local client's registration ID.
-   * <p>
-   * Clients should maintain a registration ID, a random number
-   * between 1 and 16380 that's generated once at install time.
-   *
-   * @return the local client's registration ID.
-   */
-  public int             getLocalRegistrationId();
-
-  /**
    * Save a remote client's identity key
    * <p>
    * Store a remote client's identity key as trusted.

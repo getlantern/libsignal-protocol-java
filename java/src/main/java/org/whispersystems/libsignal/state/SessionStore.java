@@ -5,6 +5,7 @@
  */
 package org.whispersystems.libsignal.state;
 
+import org.whispersystems.libsignal.DeviceId;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 
 import java.util.List;
@@ -38,7 +39,7 @@ public interface SessionStore {
    * @param name the name of the client.
    * @return all known sub-devices with active sessions.
    */
-  public List<Integer> getSubDeviceSessions(String name);
+  public List<DeviceId> getSubDeviceSessions(String name);
 
   /**
    * Commit to storage the {@link SessionRecord} for a given recipientId + deviceId tuple.

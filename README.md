@@ -61,17 +61,14 @@ For pure Java apps:
 
 ## Install time
 
-At install time, a libsignal client needs to generate its identity keys, registration id, and
-prekeys.
+At install time, a libsignal client needs to generate its identity keys and prekeys.
 
  ```java
  IdentityKeyPair    identityKeyPair = KeyHelper.generateIdentityKeyPair();
- int                registrationId  = KeyHelper.generateRegistrationId();
  List<PreKeyRecord> preKeys         = KeyHelper.generatePreKeys(startId, 100);
  SignedPreKeyRecord signedPreKey    = KeyHelper.generateSignedPreKey(identityKeyPair, 5);
 
  // Store identityKeyPair somewhere durable and safe.
- // Store registrationId somewhere durable and safe.
 
  // Store preKeys in PreKeyStore.
  // Store signed prekey in SignedPreKeyStore.

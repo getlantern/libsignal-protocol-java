@@ -5,6 +5,7 @@
  */
 package org.whispersystems.libsignal.state.impl;
 
+import org.whispersystems.libsignal.DeviceId;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.IdentityKeyPair;
@@ -24,18 +25,13 @@ public class InMemorySignalProtocolStore implements SignalProtocolStore {
 
   private final InMemoryIdentityKeyStore  identityKeyStore;
 
-  public InMemorySignalProtocolStore(IdentityKeyPair identityKeyPair, int registrationId) {
-    this.identityKeyStore = new InMemoryIdentityKeyStore(identityKeyPair, registrationId);
+  public InMemorySignalProtocolStore(IdentityKeyPair identityKeyPair) {
+    this.identityKeyStore = new InMemoryIdentityKeyStore(identityKeyPair);
   }
 
   @Override
   public IdentityKeyPair getIdentityKeyPair() {
     return identityKeyStore.getIdentityKeyPair();
-  }
-
-  @Override
-  public int getLocalRegistrationId() {
-    return identityKeyStore.getLocalRegistrationId();
   }
 
   @Override
@@ -79,7 +75,7 @@ public class InMemorySignalProtocolStore implements SignalProtocolStore {
   }
 
   @Override
-  public List<Integer> getSubDeviceSessions(String name) {
+  public List<DeviceId> getSubDeviceSessions(String name) {
     return sessionStore.getSubDeviceSessions(name);
   }
 

@@ -22,7 +22,6 @@ import org.whispersystems.libsignal.util.guava.Optional;
 public class PreKeySignalMessage implements CiphertextMessage {
 
   private final int               version;
-  private final int               registrationId;
   private final Optional<Integer> preKeyId;
   private final int               signedPreKeyId;
   private final ECPublicKey       baseKey;
@@ -57,7 +56,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
       }
 
       this.serialized     = serialized;
-      this.registrationId = preKeyWhisperMessage.getRegistrationId();
       this.preKeyId       = preKeyWhisperMessage.hasPreKeyId() ? Optional.of(preKeyWhisperMessage.getPreKeyId()) : Optional.<Integer>absent();
       this.signedPreKeyId = preKeyWhisperMessage.hasSignedPreKeyId() ? preKeyWhisperMessage.getSignedPreKeyId() : -1;
       this.baseKey        = Curve.decodePoint(preKeyWhisperMessage.getBaseKey().toByteArray(), 0);
@@ -68,12 +66,11 @@ public class PreKeySignalMessage implements CiphertextMessage {
     }
   }
 
-  public PreKeySignalMessage(int messageVersion, int registrationId, Optional<Integer> preKeyId,
+  public PreKeySignalMessage(int messageVersion, Optional<Integer> preKeyId,
                              int signedPreKeyId, ECPublicKey baseKey, IdentityKey identityKey,
                              SignalMessage message)
   {
     this.version        = messageVersion;
-    this.registrationId = registrationId;
     this.preKeyId       = preKeyId;
     this.signedPreKeyId = signedPreKeyId;
     this.baseKey        = baseKey;
@@ -85,8 +82,7 @@ public class PreKeySignalMessage implements CiphertextMessage {
                                         .setSignedPreKeyId(signedPreKeyId)
                                         .setBaseKey(ByteString.copyFrom(baseKey.serialize()))
                                         .setIdentityKey(ByteString.copyFrom(identityKey.serialize()))
-                                        .setMessage(ByteString.copyFrom(message.serialize()))
-                                        .setRegistrationId(registrationId);
+                                        .setMessage(ByteString.copyFrom(message.serialize()));
 
     if (preKeyId.isPresent()) {
       builder.setPreKeyId(preKeyId.get());
@@ -104,10 +100,6 @@ public class PreKeySignalMessage implements CiphertextMessage {
 
   public IdentityKey getIdentityKey() {
     return identityKey;
-  }
-
-  public int getRegistrationId() {
-    return registrationId;
   }
 
   public Optional<Integer> getPreKeyId() {

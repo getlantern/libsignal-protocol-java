@@ -457,7 +457,7 @@ public class SimultaneousInitiateTests extends TestCase {
     byte[]    aliceSignature        = Curve.calculateSignature(aliceStore.getIdentityKeyPair().getPrivateKey(),
                                                                aliceSignedPreKey.getPublicKey().serialize());
 
-    PreKeyBundle alicePreKeyBundle = new PreKeyBundle(1, 1,
+    PreKeyBundle alicePreKeyBundle = new PreKeyBundle(1,
                                                       aliceUnsignedPreKeyId, aliceUnsignedPreKey.getPublicKey(),
                                                       aliceSignedPreKeyId, aliceSignedPreKey.getPublicKey(),
                                                       aliceSignature, aliceStore.getIdentityKeyPair().getPublicKey());
@@ -474,7 +474,7 @@ public class SimultaneousInitiateTests extends TestCase {
     byte[]    bobSignature        = Curve.calculateSignature(bobStore.getIdentityKeyPair().getPrivateKey(),
                                                              bobSignedPreKey.getPublicKey().serialize());
 
-    PreKeyBundle bobPreKeyBundle = new PreKeyBundle(1, 1,
+    PreKeyBundle bobPreKeyBundle = new PreKeyBundle(1,
                                                     bobUnsignedPreKeyId, bobUnsignedPreKey.getPublicKey(),
                                                     bobSignedPreKeyId, bobSignedPreKey.getPublicKey(),
                                                     bobSignature, bobStore.getIdentityKeyPair().getPublicKey());

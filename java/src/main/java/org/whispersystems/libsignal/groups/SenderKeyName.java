@@ -29,7 +29,7 @@ public class SenderKeyName {
   }
 
   public String serialize() {
-    return groupId + "::" + sender.getName() + "::" + String.valueOf(sender.getDeviceId());
+    return groupId + "::" + sender.getUserId() + "::" + String.valueOf(sender.getDeviceId());
   }
 
   @Override

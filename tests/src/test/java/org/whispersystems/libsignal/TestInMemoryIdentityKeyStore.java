@@ -6,7 +6,7 @@ import org.whispersystems.libsignal.util.KeyHelper;
 
 public class TestInMemoryIdentityKeyStore extends org.whispersystems.libsignal.state.impl.InMemoryIdentityKeyStore {
   public TestInMemoryIdentityKeyStore() {
-    super(generateIdentityKeyPair(), generateRegistrationId());
+    super(generateIdentityKeyPair());
   }
 
   private static IdentityKeyPair generateIdentityKeyPair() {
@@ -14,10 +14,6 @@ public class TestInMemoryIdentityKeyStore extends org.whispersystems.libsignal.s
 
     return new IdentityKeyPair(new IdentityKey(identityKeyPairKeys.getPublicKey()),
                                identityKeyPairKeys.getPrivateKey());
-  }
-
-  private static int generateRegistrationId() {
-    return KeyHelper.generateRegistrationId(false);
   }
 
 }

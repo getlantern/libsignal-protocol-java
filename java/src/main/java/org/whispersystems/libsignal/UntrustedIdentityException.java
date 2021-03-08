@@ -7,11 +7,11 @@ package org.whispersystems.libsignal;
 
 public class UntrustedIdentityException extends Exception {
 
-  private final String name;
+  private final UserId userId;
   private final IdentityKey key;
 
-  public UntrustedIdentityException(String name, IdentityKey key) {
-    this.name = name;
+  public UntrustedIdentityException(UserId userId, IdentityKey key) {
+    this.userId = userId;
     this.key  = key;
   }
 
@@ -19,7 +19,7 @@ public class UntrustedIdentityException extends Exception {
     return key;
   }
 
-  public String getName() {
-    return name;
+  public UserId getUserId() {
+    return userId;
   }
 }
