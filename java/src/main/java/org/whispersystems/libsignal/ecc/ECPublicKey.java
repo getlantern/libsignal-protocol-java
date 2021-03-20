@@ -36,10 +36,6 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
         return bytes;
     }
 
-    public String getFingerprint() {
-        return Hex.toString(bytes);
-    }
-
     public String toString() {
         return Base32.humanFriendly.encodeToString(bytes);
     }
