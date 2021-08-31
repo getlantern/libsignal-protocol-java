@@ -5,6 +5,6 @@ package org.whispersystems.libsignal.util;
  */
 public class InvalidCharacterException extends RuntimeException {
     public InvalidCharacterException(char character) {
-        super(String.format("Invalid character $1$s", character));
+        super(String.format("Invalid character %1$c", character));
     }
 }

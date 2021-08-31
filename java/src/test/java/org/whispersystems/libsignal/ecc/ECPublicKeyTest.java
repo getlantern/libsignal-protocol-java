@@ -36,6 +36,7 @@ public class ECPublicKeyTest extends TestCase {
             fail("corrupted key should cause InvalidCharacterException");
         } catch (InvalidCharacterException ice) {
             // expected
+            System.out.println(ice.toString());
         }
     }
 
