@@ -19,10 +19,8 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
     private final byte[] bytes;
 
     public ECPublicKey(byte[] bytes) throws InvalidKeyException {
-        if (bytes.length < 32) {
+        if (bytes.length != 32) {
             throw new InvalidKeyException("Bad key length: " + bytes.length);
-        } else if (bytes.length > 32) {
-            bytes = Arrays.copyOf(bytes, 32);
         }
 
         this.bytes = bytes;

@@ -98,12 +98,12 @@ public class Base32 {
         for (i = 0, index = 0, offset = 0; i < base32.length(); i++) {
             lookup = base32.charAt(i);
 
-            /* Skip chars outside the lookup table */
+            /* Guard against unrecognized characters */
             if (lookup < 0 || lookup >= base32Lookup.length) {
-                continue;
+                throw new InvalidCharacterException((char) lookup);
             }
 
-            /* Replace characters using the replacemen table */
+            /* Replace characters using the replacement table */
             replacement = replacementLookup[lookup];
             if (replacement != 0xFF) {
                 lookup = replacement;
@@ -111,9 +111,9 @@ public class Base32 {
 
             digit = base32Lookup[lookup];
 
-            /* If this digit is not in the table, ignore it */
+            /* If this digit is not in the table, throw an exception */
             if (digit == 0xFF) {
-                continue;
+                throw new InvalidCharacterException((char) lookup);
             }
 
             if (index <= 3) {
