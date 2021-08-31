@@ -1,13 +1,13 @@
 package org.whispersystems.libsignal.util;
 
-import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 
 import java.util.Comparator;
 
-public class IdentityKeyComparator extends ByteArrayComparator implements Comparator<IdentityKey> {
+public class IdentityKeyComparator extends ByteArrayComparator implements Comparator<ECPublicKey> {
 
   @Override
-  public int compare(IdentityKey first, IdentityKey second) {
-    return compare(first.getPublicKey().serialize(), second.getPublicKey().serialize());
+  public int compare(ECPublicKey first, ECPublicKey second) {
+    return compare(first.getBytes(), second.getBytes());
   }
 }

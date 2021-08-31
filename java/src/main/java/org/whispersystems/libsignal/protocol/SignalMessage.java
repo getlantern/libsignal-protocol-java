@@ -8,7 +8,6 @@ package org.whispersystems.libsignal.protocol;
 import com.google.protobuf.ByteString;
 import com.google.protobuf.InvalidProtocolBufferException;
 
-import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.LegacyMessageException;
@@ -59,7 +58,7 @@ public class SignalMessage implements CiphertextMessage {
       }
 
       this.serialized       = serialized;
-      this.senderRatchetKey = Curve.decodePoint(whisperMessage.getRatchetKey().toByteArray(), 0);
+      this.senderRatchetKey = new ECPublicKey(whisperMessage.getRatchetKey().toByteArray());
       this.messageVersion   = ByteUtil.highBitsToInt(version);
       this.counter          = whisperMessage.getCounter();
       this.previousCounter  = whisperMessage.getPreviousCounter();
@@ -71,18 +70,18 @@ public class SignalMessage implements CiphertextMessage {
 
   public SignalMessage(int messageVersion, SecretKeySpec macKey, ECPublicKey senderRatchetKey,
                        int counter, int previousCounter, byte[] ciphertext,
-                       IdentityKey senderIdentityKey,
-                       IdentityKey receiverIdentityKey)
+                       ECPublicKey senderECPublicKey ,
+                       ECPublicKey receiverECPublicKey )
   {
     byte[] version = {ByteUtil.intsToByteHighAndLow(messageVersion, CURRENT_VERSION)};
     byte[] message = SignalProtos.SignalMessage.newBuilder()
-                                               .setRatchetKey(ByteString.copyFrom(senderRatchetKey.serialize()))
+                                               .setRatchetKey(ByteString.copyFrom(senderRatchetKey.getBytes()))
                                                .setCounter(counter)
                                                .setPreviousCounter(previousCounter)
                                                .setCiphertext(ByteString.copyFrom(ciphertext))
                                                .build().toByteArray();
 
-    byte[] mac     = getMac(senderIdentityKey, receiverIdentityKey, macKey, ByteUtil.combine(version, message));
+    byte[] mac     = getMac(senderECPublicKey , receiverECPublicKey , macKey, ByteUtil.combine(version, message));
 
     this.serialized       = ByteUtil.combine(version, message, mac);
     this.senderRatchetKey = senderRatchetKey;
@@ -108,11 +107,11 @@ public class SignalMessage implements CiphertextMessage {
     return ciphertext;
   }
 
-  public void verifyMac(IdentityKey senderIdentityKey, IdentityKey receiverIdentityKey, SecretKeySpec macKey)
+  public void verifyMac(ECPublicKey senderECPublicKey , ECPublicKey receiverECPublicKey , SecretKeySpec macKey)
       throws InvalidMessageException
   {
     byte[][] parts    = ByteUtil.split(serialized, serialized.length - MAC_LENGTH, MAC_LENGTH);
-    byte[]   ourMac   = getMac(senderIdentityKey, receiverIdentityKey, macKey, parts[0]);
+    byte[]   ourMac   = getMac(senderECPublicKey , receiverECPublicKey , macKey, parts[0]);
     byte[]   theirMac = parts[1];
 
     if (!MessageDigest.isEqual(ourMac, theirMac)) {
@@ -120,16 +119,16 @@ public class SignalMessage implements CiphertextMessage {
     }
   }
 
-  private byte[] getMac(IdentityKey senderIdentityKey,
-                        IdentityKey receiverIdentityKey,
+  private byte[] getMac(ECPublicKey senderECPublicKey ,
+                        ECPublicKey receiverECPublicKey ,
                         SecretKeySpec macKey, byte[] serialized)
   {
     try {
       Mac mac = Mac.getInstance("HmacSHA256");
       mac.init(macKey);
 
-      mac.update(senderIdentityKey.getPublicKey().serialize());
-      mac.update(receiverIdentityKey.getPublicKey().serialize());
+      mac.update(senderECPublicKey.getBytes());
+      mac.update(receiverECPublicKey.getBytes());
 
       byte[] fullMac = mac.doFinal(serialized);
       return ByteUtil.trim(fullMac, MAC_LENGTH);

@@ -53,10 +53,10 @@ public class SenderKeyState {
 
     SenderKeyStateStructure.SenderSigningKey.Builder signingKeyStructure =
         SenderKeyStateStructure.SenderSigningKey.newBuilder()
-                                                .setPublic(ByteString.copyFrom(signatureKeyPublic.serialize()));
+                                                .setPublic(ByteString.copyFrom(signatureKeyPublic.getBytes()));
 
     if (signatureKeyPrivate.isPresent()) {
-      signingKeyStructure.setPrivate(ByteString.copyFrom(signatureKeyPrivate.get().serialize()));
+      signingKeyStructure.setPrivate(ByteString.copyFrom(signatureKeyPrivate.get().getBytes()));
     }
 
     this.senderKeyStateStructure = SenderKeyStateStructure.newBuilder()
@@ -92,13 +92,13 @@ public class SenderKeyState {
   }
 
   public ECPublicKey getSigningKeyPublic() throws InvalidKeyException {
-    return Curve.decodePoint(senderKeyStateStructure.getSenderSigningKey()
+    return new ECPublicKey(senderKeyStateStructure.getSenderSigningKey()
                                                     .getPublic()
-                                                    .toByteArray(), 0);
+                                                    .toByteArray());
   }
 
   public ECPrivateKey getSigningKeyPrivate() {
-    return Curve.decodePrivatePoint(senderKeyStateStructure.getSenderSigningKey()
+    return new ECPrivateKey(senderKeyStateStructure.getSenderSigningKey()
                                                            .getPrivate().toByteArray());
   }
 

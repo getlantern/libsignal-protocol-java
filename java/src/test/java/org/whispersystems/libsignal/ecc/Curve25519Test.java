@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class Curve25519Test extends TestCase {
 
   public void testAgreement() throws InvalidKeyException {
-    byte[] alicePublic  = {(byte) 0x05, (byte) 0x1b, (byte) 0xb7, (byte) 0x59, (byte) 0x66,
+    byte[] alicePublic  = {(byte) 0x1b, (byte) 0xb7, (byte) 0x59, (byte) 0x66,
                            (byte) 0xf2, (byte) 0xe9, (byte) 0x3a, (byte) 0x36, (byte) 0x91,
                            (byte) 0xdf, (byte) 0xff, (byte) 0x94, (byte) 0x2b, (byte) 0xb2,
                            (byte) 0xa4, (byte) 0x66, (byte) 0xa1, (byte) 0xc0, (byte) 0x8b,
@@ -26,7 +26,7 @@ public class Curve25519Test extends TestCase {
                            (byte) 0x90, (byte) 0x21, (byte) 0xb9, (byte) 0x6b, (byte) 0xb4,
                            (byte) 0xbf, (byte) 0x59};
 
-    byte[] bobPublic    = {(byte) 0x05, (byte) 0x65, (byte) 0x36, (byte) 0x14, (byte) 0x99,
+    byte[] bobPublic    = {(byte) 0x65, (byte) 0x36, (byte) 0x14, (byte) 0x99,
                            (byte) 0x3d, (byte) 0x2b, (byte) 0x15, (byte) 0xee, (byte) 0x9e,
                            (byte) 0x5f, (byte) 0xd3, (byte) 0xd8, (byte) 0x6c, (byte) 0xe7,
                            (byte) 0x19, (byte) 0xef, (byte) 0x4e, (byte) 0xc1, (byte) 0xda,
@@ -50,11 +50,11 @@ public class Curve25519Test extends TestCase {
                            (byte) 0xdd, (byte) 0x7c, (byte) 0xa4, (byte) 0xc4, (byte) 0x77,
                            (byte) 0xe6, (byte) 0x29};
 
-    ECPublicKey alicePublicKey = Curve.decodePoint(alicePublic, 0);
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(alicePrivate);
+    ECPublicKey alicePublicKey = new ECPublicKey(alicePublic);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(alicePrivate);
 
-    ECPublicKey bobPublicKey = Curve.decodePoint(bobPublic, 0);
-    ECPrivateKey bobPrivateKey = Curve.decodePrivatePoint(bobPrivate);
+    ECPublicKey bobPublicKey = new ECPublicKey(bobPublic);
+    ECPrivateKey bobPrivateKey = new ECPrivateKey(bobPrivate);
 
     byte[] sharedOne = Curve.calculateAgreement(alicePublicKey, bobPrivateKey);
     byte[] sharedTwo = Curve.calculateAgreement(bobPublicKey, alicePrivateKey);
@@ -84,7 +84,7 @@ public class Curve25519Test extends TestCase {
                                    (byte)0x81, (byte)0xe0, (byte)0xe6, (byte)0xce, (byte)0x73,
                                    (byte)0xe8, (byte)0x65};
 
-    byte[] aliceIdentityPublic  = {(byte)0x05, (byte)0xab, (byte)0x7e, (byte)0x71, (byte)0x7d,
+    byte[] aliceIdentityPublic  = {(byte)0xab, (byte)0x7e, (byte)0x71, (byte)0x7d,
                                    (byte)0x4a, (byte)0x16, (byte)0x3b, (byte)0x7d, (byte)0x9a,
                                    (byte)0x1d, (byte)0x80, (byte)0x71, (byte)0xdf, (byte)0xe9,
                                    (byte)0xdc, (byte)0xf8, (byte)0xcd, (byte)0xcd, (byte)0x1c,
@@ -114,11 +114,10 @@ public class Curve25519Test extends TestCase {
                                    (byte)0x86, (byte)0xce, (byte)0xf0, (byte)0x47, (byte)0xbd,
                                    (byte)0x60, (byte)0xb8, (byte)0x6e, (byte)0x88};
 
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(aliceIdentityPrivate);
-    ECPublicKey  alicePublicKey  = Curve.decodePoint(aliceIdentityPublic, 0);
-    ECPublicKey  aliceEphemeral  = Curve.decodePoint(aliceEphemeralPublic, 0);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(aliceIdentityPrivate);
+    ECPublicKey  alicePublicKey  = new ECPublicKey(aliceIdentityPublic);
 
-    if (!Curve.verifySignature(alicePublicKey, aliceEphemeral.serialize(), aliceSignature)) {
+    if (!Curve.verifySignature(alicePublicKey, aliceEphemeralPublic, aliceSignature)) {
       throw new AssertionError("Sig verification failed!");
     }
 
@@ -128,7 +127,7 @@ public class Curve25519Test extends TestCase {
 
       modifiedSignature[i] ^= 0x01;
 
-      if (Curve.verifySignature(alicePublicKey, aliceEphemeral.serialize(), modifiedSignature)) {
+      if (Curve.verifySignature(alicePublicKey, aliceEphemeralPublic, modifiedSignature)) {
         throw new AssertionError("Sig verification succeeded!");
       }
     }
@@ -136,45 +135,23 @@ public class Curve25519Test extends TestCase {
 
   public void testDecodeSize() throws InvalidKeyException {
     ECKeyPair keyPair          = Curve.generateKeyPair();
-    byte[]    serializedPublic = keyPair.getPublicKey().serialize();
+    byte[]    serializedPublic = keyPair.getPublicKey().getBytes();
 
-    ECPublicKey justRight = Curve.decodePoint(serializedPublic, 0);
-
-    try {
-      ECPublicKey tooSmall = Curve.decodePoint(serializedPublic, 1);
-      throw new AssertionError("Shouldn't decode");
-    } catch (InvalidKeyException e) {
-      // good
-    }
+    ECPublicKey justRight = new ECPublicKey(serializedPublic);
 
     try {
-      ECPublicKey empty = Curve.decodePoint(new byte[0], 0);
+      new ECPublicKey(new byte[0]);
       throw new AssertionError("Shouldn't parse");
     } catch (InvalidKeyException e) {
       // good
     }
 
-    try {
-      byte[] badKeyType = new byte[33];
-      System.arraycopy(serializedPublic, 0, badKeyType, 0, serializedPublic.length);
-      badKeyType[0] = 0x01;
-      Curve.decodePoint(badKeyType, 0);
-      throw new AssertionError("Should be bad key type");
-    } catch (InvalidKeyException e) {
-      // good
-    }
-
-    byte[] extraSpace = new byte[serializedPublic.length + 1];
-    System.arraycopy(serializedPublic, 0, extraSpace, 0, serializedPublic.length);
-    ECPublicKey extra = Curve.decodePoint(extraSpace, 0);
-
-    byte[] offsetSpace = new byte[serializedPublic.length + 1];
-    System.arraycopy(serializedPublic, 0, offsetSpace, 1, serializedPublic.length);
-    ECPublicKey offset = Curve.decodePoint(offsetSpace, 1);
-
-    assertTrue(Arrays.equals(serializedPublic, justRight.serialize()));
-    assertTrue(Arrays.equals(extra.serialize(), serializedPublic));
-    assertTrue(Arrays.equals(offset.serialize(), serializedPublic));
-
+    // Lantern doesn't allow extra space
+//    byte[] extraSpace = new byte[serializedPublic.length + 1];
+//    System.arraycopy(serializedPublic, 0, extraSpace, 0, serializedPublic.length);
+//    ECPublicKey extra = new ECPublicKey(extraSpace);
+//
+//    assertTrue(Arrays.equals(serializedPublic, justRight.getBytes()));
+//    assertTrue(Arrays.equals(extra.getBytes(), serializedPublic));
   }
 }

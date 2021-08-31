@@ -5,7 +5,7 @@
  */
 package org.whispersystems.libsignal.fingerprint;
 
-import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.util.ByteUtil;
 import org.whispersystems.libsignal.util.IdentityKeyComparator;
 
@@ -53,17 +53,17 @@ public class NumericFingerprintGenerator implements FingerprintGenerator {
   @Override
   public Fingerprint createFor(int version,
                                byte[] localStableIdentifier,
-                               final IdentityKey localIdentityKey,
+                               final ECPublicKey localIdentityKey,
                                byte[] remoteStableIdentifier,
-                               final IdentityKey remoteIdentityKey)
+                               final ECPublicKey remoteIdentityKey)
   {
     return createFor(version,
                      localStableIdentifier,
-                     new LinkedList<IdentityKey>() {{
+                     new LinkedList<ECPublicKey>() {{
                        add(localIdentityKey);
                      }},
                      remoteStableIdentifier,
-                     new LinkedList<IdentityKey>() {{
+                     new LinkedList<ECPublicKey>() {{
                        add(remoteIdentityKey);
                      }});
   }
@@ -84,9 +84,9 @@ public class NumericFingerprintGenerator implements FingerprintGenerator {
    */
   public Fingerprint createFor(int version,
                                byte[] localStableIdentifier,
-                               List<IdentityKey> localIdentityKeys,
+                               List<ECPublicKey> localIdentityKeys,
                                byte[] remoteStableIdentifier,
-                               List<IdentityKey> remoteIdentityKeys)
+                               List<ECPublicKey> remoteIdentityKeys)
   {
     byte[] localFingerprint  = getFingerprint(iterations, localStableIdentifier, localIdentityKeys);
     byte[] remoteFingerprint = getFingerprint(iterations, remoteStableIdentifier, remoteIdentityKeys);
@@ -101,7 +101,7 @@ public class NumericFingerprintGenerator implements FingerprintGenerator {
     return new Fingerprint(displayableFingerprint, scannableFingerprint);
   }
 
-  private byte[] getFingerprint(int iterations, byte[] stableIdentifier, List<IdentityKey> unsortedIdentityKeys) {
+  private byte[] getFingerprint(int iterations, byte[] stableIdentifier, List<ECPublicKey> unsortedIdentityKeys) {
     try {
       MessageDigest digest    = MessageDigest.getInstance("SHA-512");
       byte[]        publicKey = getLogicalKeyBytes(unsortedIdentityKeys);
@@ -119,14 +119,14 @@ public class NumericFingerprintGenerator implements FingerprintGenerator {
     }
   }
 
-  private byte[] getLogicalKeyBytes(List<IdentityKey> identityKeys) {
-    ArrayList<IdentityKey> sortedIdentityKeys = new ArrayList<>(identityKeys);
+  private byte[] getLogicalKeyBytes(List<ECPublicKey> identityKeys) {
+    ArrayList<ECPublicKey> sortedIdentityKeys = new ArrayList<>(identityKeys);
     Collections.sort(sortedIdentityKeys, new IdentityKeyComparator());
 
     ByteArrayOutputStream baos = new ByteArrayOutputStream();
 
-    for (IdentityKey identityKey : sortedIdentityKeys) {
-      byte[] publicKeyBytes = identityKey.getPublicKey().serialize();
+    for (ECPublicKey identityKey : sortedIdentityKeys) {
+      byte[] publicKeyBytes = identityKey.getBytes();
       baos.write(publicKeyBytes, 0, publicKeyBytes.length);
     }
 

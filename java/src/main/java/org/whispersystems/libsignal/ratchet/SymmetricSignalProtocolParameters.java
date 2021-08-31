@@ -5,8 +5,6 @@
  */
 package org.whispersystems.libsignal.ratchet;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.ecc.ECPublicKey;
 
@@ -14,15 +12,15 @@ public class SymmetricSignalProtocolParameters {
 
   private final ECKeyPair       ourBaseKey;
   private final ECKeyPair       ourRatchetKey;
-  private final IdentityKeyPair ourIdentityKey;
+  private final ECKeyPair ourIdentityKey;
 
   private final ECPublicKey     theirBaseKey;
   private final ECPublicKey     theirRatchetKey;
-  private final IdentityKey     theirIdentityKey;
+  private final ECPublicKey     theirIdentityKey;
 
   SymmetricSignalProtocolParameters(ECKeyPair ourBaseKey, ECKeyPair ourRatchetKey,
-                                    IdentityKeyPair ourIdentityKey, ECPublicKey theirBaseKey,
-                                    ECPublicKey theirRatchetKey, IdentityKey theirIdentityKey)
+                                    ECKeyPair ourIdentityKey, ECPublicKey theirBaseKey,
+                                    ECPublicKey theirRatchetKey, ECPublicKey theirIdentityKey)
   {
     this.ourBaseKey       = ourBaseKey;
     this.ourRatchetKey    = ourRatchetKey;
@@ -46,7 +44,7 @@ public class SymmetricSignalProtocolParameters {
     return ourRatchetKey;
   }
 
-  public IdentityKeyPair getOurIdentityKey() {
+  public ECKeyPair getOurIdentityKey() {
     return ourIdentityKey;
   }
 
@@ -58,7 +56,7 @@ public class SymmetricSignalProtocolParameters {
     return theirRatchetKey;
   }
 
-  public IdentityKey getTheirIdentityKey() {
+  public ECPublicKey getTheirIdentityKey() {
     return theirIdentityKey;
   }
 
@@ -69,11 +67,11 @@ public class SymmetricSignalProtocolParameters {
   public static class Builder {
     private ECKeyPair       ourBaseKey;
     private ECKeyPair       ourRatchetKey;
-    private IdentityKeyPair ourIdentityKey;
+    private ECKeyPair ourIdentityKey;
 
     private ECPublicKey     theirBaseKey;
     private ECPublicKey     theirRatchetKey;
-    private IdentityKey     theirIdentityKey;
+    private ECPublicKey     theirIdentityKey;
 
     public Builder setOurBaseKey(ECKeyPair ourBaseKey) {
       this.ourBaseKey = ourBaseKey;
@@ -85,7 +83,7 @@ public class SymmetricSignalProtocolParameters {
       return this;
     }
 
-    public Builder setOurIdentityKey(IdentityKeyPair ourIdentityKey) {
+    public Builder setOurIdentityKey(ECKeyPair ourIdentityKey) {
       this.ourIdentityKey = ourIdentityKey;
       return this;
     }
@@ -100,7 +98,7 @@ public class SymmetricSignalProtocolParameters {
       return this;
     }
 
-    public Builder setTheirIdentityKey(IdentityKey theirIdentityKey) {
+    public Builder setTheirIdentityKey(ECPublicKey theirIdentityKey) {
       this.theirIdentityKey = theirIdentityKey;
       return this;
     }

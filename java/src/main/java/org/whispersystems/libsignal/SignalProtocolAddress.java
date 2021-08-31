@@ -1,44 +1,63 @@
 /**
  * Copyright (C) 2014-2016 Open Whisper Systems
- *
+ * <p>
  * Licensed according to the LICENSE file in this repository.
  */
 package org.whispersystems.libsignal;
 
+import org.whispersystems.libsignal.ecc.ECPublicKey;
+
+import java.util.Objects;
+
+/**
+ * A SignalProtocolAddress uniquely identifies a sender or recipient in a message xchange.
+ * It consists of an identity that uniquely identifies a person/organization/etc (whoever is authorized
+ * to send and receive messages) and a deviceId that uniquely identifies a specific device being
+ * used by that identity.
+ */
 public class SignalProtocolAddress {
 
-  private final String name;
-  private final int    deviceId;
+    private final ECPublicKey identityKey;
+    private final DeviceId deviceId;
 
-  public SignalProtocolAddress(String name, int deviceId) {
-    this.name     = name;
-    this.deviceId = deviceId;
-  }
+    public SignalProtocolAddress(ECPublicKey identityKey, DeviceId deviceId) {
+        this.identityKey = identityKey;
+        this.deviceId = deviceId;
+    }
 
-  public String getName() {
-    return name;
-  }
+    public SignalProtocolAddress(String str) throws InvalidAddressException, InvalidKeyException {
+        String[] parts = str.split(":");
+        if (parts.length != 2) {
+            throw new InvalidAddressException("Wrong number of parts in string encoded address");
+        }
+        this.identityKey = new ECPublicKey(parts[0]);
+        this.deviceId = new DeviceId(parts[1]);
+    }
 
-  public int getDeviceId() {
-    return deviceId;
-  }
+    public ECPublicKey getIdentityKey() {
+        return identityKey;
+    }
 
-  @Override
-  public String toString() {
-    return name + ":" + deviceId;
-  }
+    public DeviceId getDeviceId() {
+        return deviceId;
+    }
 
-  @Override
-  public boolean equals(Object other) {
-    if (other == null)                       return false;
-    if (!(other instanceof SignalProtocolAddress)) return false;
+    @Override
+    public String toString() {
+        return identityKey.toString() + ":" + deviceId.toString();
+    }
 
-    SignalProtocolAddress that = (SignalProtocolAddress)other;
-    return this.name.equals(that.name) && this.deviceId == that.deviceId;
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        SignalProtocolAddress that = (SignalProtocolAddress) o;
+        return identityKey.equals(that.identityKey) &&
+                deviceId.equals(that.deviceId);
+    }
 
-  @Override
-  public int hashCode() {
-    return this.name.hashCode() ^ this.deviceId;
-  }
+    @Override
+    public int hashCode() {
+        return Objects.hash(identityKey, deviceId);
+    }
 }

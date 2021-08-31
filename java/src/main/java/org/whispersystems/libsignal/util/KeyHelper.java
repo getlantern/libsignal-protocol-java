@@ -5,11 +5,10 @@
  */
 package org.whispersystems.libsignal.util;
 
-import org.whispersystems.libsignal.IdentityKey;
-import org.whispersystems.libsignal.IdentityKeyPair;
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.ecc.Curve;
 import org.whispersystems.libsignal.ecc.ECKeyPair;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 import org.whispersystems.libsignal.state.PreKeyRecord;
 import org.whispersystems.libsignal.state.SignedPreKeyRecord;
 
@@ -31,33 +30,12 @@ public class KeyHelper {
    * Generate an identity key pair.  Clients should only do this once,
    * at install time.
    *
-   * @return the generated IdentityKeyPair.
+   * @return the generated ECKeyPair.
    */
-  public static IdentityKeyPair generateIdentityKeyPair() {
+  public static ECKeyPair generateIdentityKeyPair() {
     ECKeyPair   keyPair   = Curve.generateKeyPair();
-    IdentityKey publicKey = new IdentityKey(keyPair.getPublicKey());
-    return new IdentityKeyPair(publicKey, keyPair.getPrivateKey());
-  }
-
-  /**
-   * Generate a registration ID.  Clients should only do this once,
-   * at install time.
-   *
-   * @param extendedRange By default (false), the generated registration
-   *                      ID is sized to require the minimal possible protobuf
-   *                      encoding overhead. Specify true if the caller needs
-   *                      the full range of MAX_INT at the cost of slightly
-   *                      higher encoding overhead.
-   * @return the generated registration ID.
-   */
-  public static int generateRegistrationId(boolean extendedRange) {
-    try {
-      SecureRandom secureRandom = SecureRandom.getInstance("SHA1PRNG");
-      if (extendedRange) return secureRandom.nextInt(Integer.MAX_VALUE - 1) + 1;
-      else               return secureRandom.nextInt(16380) + 1;
-    } catch (NoSuchAlgorithmException e) {
-      throw new AssertionError(e);
-    }
+    ECPublicKey publicKey = keyPair.getPublicKey();
+    return new ECKeyPair(publicKey, keyPair.getPrivateKey());
   }
 
   public static int getRandomSequence(int max) {
@@ -101,11 +79,11 @@ public class KeyHelper {
    * @return the generated signed PreKey
    * @throws InvalidKeyException when the provided identity key is invalid
    */
-  public static SignedPreKeyRecord generateSignedPreKey(IdentityKeyPair identityKeyPair, int signedPreKeyId)
+  public static SignedPreKeyRecord generateSignedPreKey(ECKeyPair identityKeyPair, int signedPreKeyId)
       throws InvalidKeyException
   {
     ECKeyPair keyPair   = Curve.generateKeyPair();
-    byte[]    signature = Curve.calculateSignature(identityKeyPair.getPrivateKey(), keyPair.getPublicKey().serialize());
+    byte[]    signature = Curve.calculateSignature(identityKeyPair.getPrivateKey(), keyPair.getPublicKey().getBytes());
 
     return new SignedPreKeyRecord(signedPreKeyId, System.currentTimeMillis(), keyPair, signature);
   }

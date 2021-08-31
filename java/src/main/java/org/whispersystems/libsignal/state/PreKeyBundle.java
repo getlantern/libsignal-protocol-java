@@ -5,7 +5,6 @@
  */
 package org.whispersystems.libsignal.state;
 
-import org.whispersystems.libsignal.IdentityKey;
 import org.whispersystems.libsignal.ecc.ECPublicKey;
 
 /**
@@ -16,10 +15,6 @@ import org.whispersystems.libsignal.ecc.ECPublicKey;
  */
 public class PreKeyBundle {
 
-  private int         registrationId;
-
-  private int         deviceId;
-
   private int         preKeyId;
   private ECPublicKey preKeyPublic;
 
@@ -27,27 +22,18 @@ public class PreKeyBundle {
   private ECPublicKey signedPreKeyPublic;
   private byte[]      signedPreKeySignature;
 
-  private IdentityKey identityKey;
+  private ECPublicKey identityKey;
 
-  public PreKeyBundle(int registrationId, int deviceId, int preKeyId, ECPublicKey preKeyPublic,
+  public PreKeyBundle(int preKeyId, ECPublicKey preKeyPublic,
                       int signedPreKeyId, ECPublicKey signedPreKeyPublic, byte[] signedPreKeySignature,
-                      IdentityKey identityKey)
+                      ECPublicKey identityKey)
   {
-    this.registrationId        = registrationId;
-    this.deviceId              = deviceId;
     this.preKeyId              = preKeyId;
     this.preKeyPublic          = preKeyPublic;
     this.signedPreKeyId        = signedPreKeyId;
     this.signedPreKeyPublic    = signedPreKeyPublic;
     this.signedPreKeySignature = signedPreKeySignature;
     this.identityKey           = identityKey;
-  }
-
-  /**
-   * @return the device ID this PreKey belongs to.
-   */
-  public int getDeviceId() {
-    return deviceId;
   }
 
   /**
@@ -86,16 +72,9 @@ public class PreKeyBundle {
   }
 
   /**
-   * @return the {@link org.whispersystems.libsignal.IdentityKey} of this PreKeys owner.
+   * @return the {@link org.whispersystems.libsignal.ecc.ECPublicKey} of this PreKeys owner.
    */
-  public IdentityKey getIdentityKey() {
+  public ECPublicKey getIdentityKey() {
     return identityKey;
-  }
-
-  /**
-   * @return the registration ID associated with this PreKey.
-   */
-  public int getRegistrationId() {
-    return registrationId;
   }
 }

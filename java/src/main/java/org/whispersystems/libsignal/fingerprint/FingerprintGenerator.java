@@ -5,20 +5,20 @@
  */
 package org.whispersystems.libsignal.fingerprint;
 
-import org.whispersystems.libsignal.IdentityKey;
+import org.whispersystems.libsignal.ecc.ECPublicKey;
 
 import java.util.List;
 
 public interface FingerprintGenerator {
   public Fingerprint createFor(int version,
                                byte[] localStableIdentifier,
-                               IdentityKey localIdentityKey,
+                               ECPublicKey localIdentityKey,
                                byte[] remoteStableIdentifier,
-                               IdentityKey remoteIdentityKey);
+                               ECPublicKey remoteIdentityKey);
 
   public Fingerprint createFor(int version,
                                byte[] localStableIdentifier,
-                               List<IdentityKey> localIdentityKey,
+                               List<ECPublicKey> localIdentityKey,
                                byte[] remoteStableIdentifier,
-                               List<IdentityKey> remoteIdentityKey);
+                               List<ECPublicKey> remoteIdentityKey);
 }

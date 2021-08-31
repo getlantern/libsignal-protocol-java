@@ -24,7 +24,7 @@ public class RootKeyTest extends TestCase {
                            (byte) 0x02, (byte) 0xd9, (byte) 0x35, (byte) 0x38, (byte) 0x94,
                            (byte) 0x2d, (byte) 0xcc};
 
-    byte[] alicePublic  = {(byte) 0x05, (byte) 0xee, (byte) 0x4f, (byte) 0xa6, (byte) 0xcd,
+    byte[] alicePublic  = {(byte) 0xee, (byte) 0x4f, (byte) 0xa6, (byte) 0xcd,
                            (byte) 0xc0, (byte) 0x30, (byte) 0xdf, (byte) 0x49, (byte) 0xec,
                            (byte) 0xd0, (byte) 0xba, (byte) 0x6c, (byte) 0xfc, (byte) 0xff,
                            (byte) 0xb2, (byte) 0x33, (byte) 0xd3, (byte) 0x65, (byte) 0xa2,
@@ -40,7 +40,7 @@ public class RootKeyTest extends TestCase {
                            (byte) 0x24, (byte) 0x5a, (byte) 0xc3, (byte) 0x7a, (byte) 0x94,
                            (byte) 0x8e, (byte) 0x50};
 
-    byte[] bobPublic    = {(byte) 0x05, (byte) 0xab, (byte) 0xb8, (byte) 0xeb, (byte) 0x29,
+    byte[] bobPublic    = {(byte) 0xab, (byte) 0xb8, (byte) 0xeb, (byte) 0x29,
                            (byte) 0xcc, (byte) 0x80, (byte) 0xb4, (byte) 0x71, (byte) 0x09,
                            (byte) 0xa2, (byte) 0x26, (byte) 0x5a, (byte) 0xbe, (byte) 0x97,
                            (byte) 0x98, (byte) 0x48, (byte) 0x54, (byte) 0x06, (byte) 0xe3,
@@ -64,11 +64,11 @@ public class RootKeyTest extends TestCase {
                            (byte) 0x43, (byte) 0x0c, (byte) 0x5c, (byte) 0x55, (byte) 0xb5,
                            (byte) 0xca, (byte) 0x5f};
 
-    ECPublicKey  alicePublicKey  = Curve.decodePoint(alicePublic, 0);
-    ECPrivateKey alicePrivateKey = Curve.decodePrivatePoint(alicePrivate);
+    ECPublicKey  alicePublicKey  = new ECPublicKey(alicePublic);
+    ECPrivateKey alicePrivateKey = new ECPrivateKey(alicePrivate);
     ECKeyPair    aliceKeyPair    = new ECKeyPair(alicePublicKey, alicePrivateKey);
 
-    ECPublicKey bobPublicKey = Curve.decodePoint(bobPublic, 0);
+    ECPublicKey bobPublicKey = new ECPublicKey(bobPublic);
     RootKey     rootKey      = new RootKey(HKDF.createFor(2), rootKeySeed);
 
     Pair<RootKey, ChainKey> rootKeyChainKeyPair = rootKey.createChain(bobPublicKey, aliceKeyPair);

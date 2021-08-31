@@ -29,7 +29,7 @@ public class SenderKeyDistributionMessage implements CiphertextMessage {
                                                                .setId(id)
                                                                .setIteration(iteration)
                                                                .setChainKey(ByteString.copyFrom(chainKey))
-                                                               .setSigningKey(ByteString.copyFrom(signatureKey.serialize()))
+                                                               .setSigningKey(ByteString.copyFrom(signatureKey.getBytes()))
                                                                .build().toByteArray();
 
     this.id           = id;
@@ -67,7 +67,7 @@ public class SenderKeyDistributionMessage implements CiphertextMessage {
       this.id           = distributionMessage.getId();
       this.iteration    = distributionMessage.getIteration();
       this.chainKey     = distributionMessage.getChainKey().toByteArray();
-      this.signatureKey = Curve.decodePoint(distributionMessage.getSigningKey().toByteArray(), 0);
+      this.signatureKey = new ECPublicKey(distributionMessage.getSigningKey().toByteArray());
     } catch (InvalidProtocolBufferException | InvalidKeyException e) {
       throw new InvalidMessageException(e);
     }

@@ -2,11 +2,14 @@ package org.whispersystems.libsignal.groups;
 
 import junit.framework.TestCase;
 
+import org.whispersystems.libsignal.DeviceId;
 import org.whispersystems.libsignal.SignalProtocolAddress;
 import org.whispersystems.libsignal.DuplicateMessageException;
 import org.whispersystems.libsignal.InvalidMessageException;
 import org.whispersystems.libsignal.LegacyMessageException;
 import org.whispersystems.libsignal.NoSessionException;
+import org.whispersystems.libsignal.ecc.Curve;
+import org.whispersystems.libsignal.ecc.ECKeyPair;
 import org.whispersystems.libsignal.protocol.SenderKeyDistributionMessage;
 
 import java.security.NoSuchAlgorithmException;
@@ -19,7 +22,8 @@ import java.util.Random;
 
 public class GroupCipherTest extends TestCase {
 
-  private static final SignalProtocolAddress SENDER_ADDRESS = new SignalProtocolAddress("+14150001111", 1);
+  private static final ECKeyPair senderKeyPair = Curve.generateKeyPair();
+  private static final SignalProtocolAddress SENDER_ADDRESS = new SignalProtocolAddress(senderKeyPair.getPublicKey(), DeviceId.random());
   private static final SenderKeyName  GROUP_SENDER   = new SenderKeyName("nihilist history reading group", SENDER_ADDRESS);
 
   public void testNoSession() throws InvalidMessageException, LegacyMessageException, NoSessionException, DuplicateMessageException {
@@ -203,7 +207,7 @@ public class GroupCipherTest extends TestCase {
 
   public void testEncryptNoSession() {
     InMemorySenderKeyStore aliceStore = new InMemorySenderKeyStore();
-    GroupCipher aliceGroupCipher = new GroupCipher(aliceStore, new SenderKeyName("coolio groupio", new SignalProtocolAddress("+10002223333", 1)));
+    GroupCipher aliceGroupCipher = new GroupCipher(aliceStore, new SenderKeyName("coolio groupio", new SignalProtocolAddress(senderKeyPair.getPublicKey(), DeviceId.random())));
     try {
       aliceGroupCipher.encrypt("up the punks".getBytes());
       throw new AssertionError("Should have failed!");

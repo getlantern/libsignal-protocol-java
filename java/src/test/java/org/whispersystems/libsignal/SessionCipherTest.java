@@ -28,7 +28,7 @@ public class SessionCipherTest extends TestCase {
 
   public void testBasicSessionV3()
       throws InvalidKeyException, DuplicateMessageException,
-      LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException, UntrustedIdentityException
+      LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException
   {
     SessionRecord aliceSessionRecord = new SessionRecord();
     SessionRecord bobSessionRecord   = new SessionRecord();
@@ -46,11 +46,14 @@ public class SessionCipherTest extends TestCase {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    aliceStore.storeSession(new SignalProtocolAddress("+14159999999", 1), aliceSessionRecord);
-    bobStore.storeSession(new SignalProtocolAddress("+14158888888", 1), bobSessionRecord);
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
-    SessionCipher     aliceCipher    = new SessionCipher(aliceStore, new SignalProtocolAddress("+14159999999", 1));
-    SessionCipher     bobCipher      = new SessionCipher(bobStore, new SignalProtocolAddress("+14158888888", 1));
+    aliceStore.storeSession(bobAddress, aliceSessionRecord);
+    bobStore.storeSession(aliceAddress, bobSessionRecord);
+
+    SessionCipher     aliceCipher    = new SessionCipher(aliceStore, bobAddress);
+    SessionCipher     bobCipher      = new SessionCipher(bobStore, aliceAddress);
 
     List<CiphertextMessage> inflight = new LinkedList<>();
 
@@ -70,15 +73,18 @@ public class SessionCipherTest extends TestCase {
   }
 
   private void runInteraction(SessionRecord aliceSessionRecord, SessionRecord bobSessionRecord)
-      throws DuplicateMessageException, LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException, UntrustedIdentityException {
+      throws DuplicateMessageException, LegacyMessageException, InvalidMessageException, NoSuchAlgorithmException, NoSessionException {
     SignalProtocolStore aliceStore = new TestInMemorySignalProtocolStore();
     SignalProtocolStore bobStore   = new TestInMemorySignalProtocolStore();
 
-    aliceStore.storeSession(new SignalProtocolAddress("+14159999999", 1), aliceSessionRecord);
-    bobStore.storeSession(new SignalProtocolAddress("+14158888888", 1), bobSessionRecord);
+    final SignalProtocolAddress bobAddress = new SignalProtocolAddress(bobStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
+    final SignalProtocolAddress aliceAddress = new SignalProtocolAddress(aliceStore.getIdentityKeyPair().getPublicKey(), DeviceId.random());
 
-    SessionCipher     aliceCipher    = new SessionCipher(aliceStore, new SignalProtocolAddress("+14159999999", 1));
-    SessionCipher     bobCipher      = new SessionCipher(bobStore, new SignalProtocolAddress("+14158888888", 1));
+    aliceStore.storeSession(bobAddress, aliceSessionRecord);
+    bobStore.storeSession(aliceAddress, bobSessionRecord);
+
+    SessionCipher     aliceCipher    = new SessionCipher(aliceStore, bobAddress);
+    SessionCipher     bobCipher      = new SessionCipher(bobStore, aliceAddress);
 
     byte[]            alicePlaintext = "This is a plaintext message.".getBytes();
     CiphertextMessage message        = aliceCipher.encrypt(alicePlaintext);
@@ -142,21 +148,21 @@ public class SessionCipherTest extends TestCase {
   private void initializeSessionsV3(SessionState aliceSessionState, SessionState bobSessionState)
       throws InvalidKeyException
   {
-    ECKeyPair       aliceIdentityKeyPair = Curve.generateKeyPair();
-    IdentityKeyPair aliceIdentityKey     = new IdentityKeyPair(new IdentityKey(aliceIdentityKeyPair.getPublicKey()),
+    org.whispersystems.libsignal.ecc.ECKeyPair aliceIdentityKeyPair = Curve.generateKeyPair();
+    ECKeyPair aliceIdentityKey     = new ECKeyPair(aliceIdentityKeyPair.getPublicKey(),
                                                                aliceIdentityKeyPair.getPrivateKey());
-    ECKeyPair       aliceBaseKey         = Curve.generateKeyPair();
-    ECKeyPair       aliceEphemeralKey    = Curve.generateKeyPair();
+    org.whispersystems.libsignal.ecc.ECKeyPair aliceBaseKey         = Curve.generateKeyPair();
+    org.whispersystems.libsignal.ecc.ECKeyPair aliceEphemeralKey    = Curve.generateKeyPair();
 
-    ECKeyPair alicePreKey = aliceBaseKey;
+    org.whispersystems.libsignal.ecc.ECKeyPair alicePreKey = aliceBaseKey;
 
-    ECKeyPair       bobIdentityKeyPair = Curve.generateKeyPair();
-    IdentityKeyPair bobIdentityKey       = new IdentityKeyPair(new IdentityKey(bobIdentityKeyPair.getPublicKey()),
+    org.whispersystems.libsignal.ecc.ECKeyPair bobIdentityKeyPair = Curve.generateKeyPair();
+    ECKeyPair bobIdentityKey       = new ECKeyPair(bobIdentityKeyPair.getPublicKey(),
                                                                bobIdentityKeyPair.getPrivateKey());
-    ECKeyPair       bobBaseKey           = Curve.generateKeyPair();
-    ECKeyPair       bobEphemeralKey      = bobBaseKey;
+    org.whispersystems.libsignal.ecc.ECKeyPair bobBaseKey           = Curve.generateKeyPair();
+    org.whispersystems.libsignal.ecc.ECKeyPair bobEphemeralKey      = bobBaseKey;
 
-    ECKeyPair       bobPreKey            = Curve.generateKeyPair();
+    org.whispersystems.libsignal.ecc.ECKeyPair bobPreKey            = Curve.generateKeyPair();
 
     AliceSignalProtocolParameters aliceParameters = AliceSignalProtocolParameters.newBuilder()
                                                                                  .setOurBaseKey(aliceBaseKey)
@@ -170,7 +176,7 @@ public class SessionCipherTest extends TestCase {
     BobSignalProtocolParameters bobParameters = BobSignalProtocolParameters.newBuilder()
                                                                            .setOurRatchetKey(bobEphemeralKey)
                                                                            .setOurSignedPreKey(bobBaseKey)
-                                                                           .setOurOneTimePreKey(Optional.<ECKeyPair>absent())
+                                                                           .setOurOneTimePreKey(Optional.<org.whispersystems.libsignal.ecc.ECKeyPair>absent())
                                                                            .setOurIdentityKey(bobIdentityKey)
                                                                            .setTheirIdentityKey(aliceIdentityKey.getPublicKey())
                                                                            .setTheirBaseKey(aliceBaseKey.getPublicKey())
