@@ -65,11 +65,11 @@ public class ECPublicKeyTest extends TestCase {
                 new ECPublicKey(key.toString()));
     }
 
-    public void testRoundTripNumber() throws InvalidKeyException {
+    public void testRoundTripChatNumber() throws InvalidKeyException {
         ECPublicKey key = Curve.generateKeyPair().getPublicKey();
         assertEquals(
                 "round-tripped key should equal itself",
                 key,
-                ECPublicKey.fromNumber(key.toNumber()));
+                ECPublicKey.fromChatNumber(key.toChatNumber()));
     }
 }

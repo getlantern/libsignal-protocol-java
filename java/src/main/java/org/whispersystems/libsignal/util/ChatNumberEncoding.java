@@ -22,7 +22,7 @@ import java.util.Map;
  *
  * 522222222222252222222222222222222222222222222222222222222222222222222222222222223
  */
-public class PhoneNumberEncoding {
+public class ChatNumberEncoding {
     private static final Map<Byte, Character> base4Table = new HashMap<>();
     private static final Map<Character, Byte> base4TableReverse = new HashMap<>();
 
@@ -39,7 +39,7 @@ public class PhoneNumberEncoding {
     }
 
     /**
-     * Encodes the given bytes using PhoneNumber encoding. The resulting string will be of target
+     * Encodes the given bytes using ChatNumber encoding. The resulting string will be of target
      * length using '0's after the first digit in order to pad up to the targetLength.
      *
      * @param b
@@ -65,7 +65,7 @@ public class PhoneNumberEncoding {
     }
 
     /**
-     * Decodes the given PhoneNumber string into a byte[] of targetSize. If the string doesn't
+     * Decodes the given ChatNumber string into a byte[] of targetSize. If the string doesn't
      * contain enough data to fill targetSize, the byte[] will contain leading zeros.
      *
      * This function ignores any leading characters other than 2, 3, 4 or 6, and any subsequent 5s.

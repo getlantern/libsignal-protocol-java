@@ -8,7 +8,7 @@ package org.whispersystems.libsignal.ecc;
 
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.util.Base32;
-import org.whispersystems.libsignal.util.PhoneNumberEncoding;
+import org.whispersystems.libsignal.util.ChatNumberEncoding;
 
 import java.math.BigInteger;
 import java.util.Arrays;
@@ -28,8 +28,8 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
         this(Base32.humanFriendly.decodeFromString(string));
     }
 
-    public static ECPublicKey fromNumber(String string) throws InvalidKeyException {
-        return new ECPublicKey(PhoneNumberEncoding.decodeFromString(string, 32));
+    public static ECPublicKey fromChatNumber(String string) throws InvalidKeyException {
+        return new ECPublicKey(ChatNumberEncoding.decodeFromString(string, 32));
     }
 
     public byte[] getBytes() {
@@ -40,7 +40,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
         return Base32.humanFriendly.encodeToString(bytes);
     }
 
-    public String toNumber() { return PhoneNumberEncoding.encodeToString(bytes, 82); }
+    public String toChatNumber() { return ChatNumberEncoding.encodeToString(bytes, 82); }
 
     @Override
     public boolean equals(Object other) {

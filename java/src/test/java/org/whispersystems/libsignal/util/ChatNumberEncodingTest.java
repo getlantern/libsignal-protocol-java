@@ -4,14 +4,14 @@ import junit.framework.TestCase;
 
 import java.util.Random;
 
-public class PhoneNumberEncodingTest extends TestCase {
+public class ChatNumberEncodingTest extends TestCase {
     public void testEncodeToString() {
         final byte[] b = Base32.humanFriendly.decodeFromString(
                 "rfu2495fqazzpq1e3xkj1skmr9785hwbxggpr17ut1htj4h9nhyy"
         );
         assertEquals(
                 "2277029271600308397119018701998194490680040839333862997699030902896411310611021743",
-                PhoneNumberEncoding.encodeToString(b, 82)
+                ChatNumberEncoding.encodeToString(b, 82)
         );
     }
 
@@ -20,8 +20,8 @@ public class PhoneNumberEncodingTest extends TestCase {
         for (int i = 0; i < 10000; i++) {
             byte[] b = new byte[32];
             random.nextBytes(b);
-            String expected = PhoneNumberEncoding.encodeToString(b, 82);
-            String actual = PhoneNumberEncoding.encodeToString(PhoneNumberEncoding.decodeFromString(expected, 32), 82);
+            String expected = ChatNumberEncoding.encodeToString(b, 82);
+            String actual = ChatNumberEncoding.encodeToString(ChatNumberEncoding.decodeFromString(expected, 32), 82);
             assertEquals(expected, actual);
         }
     }
