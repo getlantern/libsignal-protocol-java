@@ -8,13 +8,10 @@ package org.whispersystems.libsignal.ecc;
 
 import org.whispersystems.libsignal.InvalidKeyException;
 import org.whispersystems.libsignal.util.Base32;
-import org.whispersystems.libsignal.util.Base810;
-import org.whispersystems.libsignal.util.Hex;
+import org.whispersystems.libsignal.util.PhoneNumberEncoding;
 
 import java.math.BigInteger;
 import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
 
 public class ECPublicKey implements Comparable<ECPublicKey> {
     private final byte[] bytes;
@@ -32,7 +29,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
     }
 
     public static ECPublicKey fromNumber(String string) throws InvalidKeyException {
-        return new ECPublicKey(Base810.decodeFromString(string, 32));
+        return new ECPublicKey(PhoneNumberEncoding.decodeFromString(string, 32));
     }
 
     public byte[] getBytes() {
@@ -43,9 +40,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
         return Base32.humanFriendly.encodeToString(bytes);
     }
 
-    public String toNumber() { return Base810.encodeToString(bytes, 79); }
-
-    public String toShortNumber() { return toNumber().substring(0, 12); }
+    public String toNumber() { return PhoneNumberEncoding.encodeToString(bytes, 82); }
 
     @Override
     public boolean equals(Object other) {

@@ -72,11 +72,4 @@ public class ECPublicKeyTest extends TestCase {
                 key,
                 ECPublicKey.fromNumber(key.toNumber()));
     }
-
-    public void testShortNumber() throws InvalidKeyException {
-        ECPublicKey key = Curve.generateKeyPair().getPublicKey();
-        assertTrue(
-                "short number should be a prefix of full number",
-                key.toNumber().startsWith(key.toShortNumber()));
-    }
 }
