@@ -42,7 +42,7 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.getlantern.curve25519-java:curve25519-android:4a5f50748f"
+    implementation "com.github.getlantern.curve25519-java:curve25519-android:${curve25519_version}"
     implementation (project(':java')) {
         exclude group: 'com.github.getlantern.curve25519-java', module: 'curve25519-java'
     }
@@ -90,3 +90,5 @@ afterEvaluate {
         }
     }
 }
+
+task install(dependsOn: publishToMavenLocal) {}

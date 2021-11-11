@@ -11,7 +11,7 @@ buildscript {
 
 apply plugin: 'java'
 apply plugin: 'com.google.protobuf'
-apply plugin: 'maven-publish'
+apply plugin: 'maven'
 apply plugin: 'signing'
 
 sourceCompatibility = 1.7
@@ -34,7 +34,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation "com.github.getlantern.curve25519-java:curve25519-java:1ce78a2b8a"
+    implementation "com.github.getlantern.curve25519-java:curve25519-java:${curve25519_version}"
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
 
     testImplementation ('junit:junit:3.8.2')
@@ -86,10 +86,20 @@ def getRepositoryPassword() {
     return hasProperty('whisperSonatypePassword') ? whisperSonatypePassword : ""
 }
 
-signing {
-    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
-    sign configurations.archives
+task publishToMavenLocal(type: Upload) {
+    description "Installs the artifacts to the local Maven repository."
+    configuration = configurations['archives']
+    repositories {
+        mavenDeployer {
+            repository url: "file://${System.properties['user.home']}/.m2/repository"
+        }
+    }
 }
+
+//signing {
+//    required { isReleaseBuild() && gradle.taskGraph.hasTask("uploadArchives") }
+//    sign configurations.archives
+//}
 
 task packageJavadoc(type: Jar, dependsOn: 'javadoc') {
     from javadoc.destinationDir
