@@ -2,15 +2,10 @@ buildscript {
     repositories {
         google()
         mavenCentral()
-        jcenter {
-            content {
-                includeVersion 'org.jetbrains.trove4j', 'trove4j', '20160824'
-            }
-        }
     }
 
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.5.1'
+        classpath 'com.android.tools.build:gradle:4.2.1'
     }
 }
 
@@ -23,12 +18,12 @@ version          = version_number
 group            = group_info
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion '28.0.3'
+    compileSdkVersion 30
+    buildToolsVersion '30.0.3'
 
     defaultConfig {
         minSdkVersion 19
-        targetSdkVersion 28
+        targetSdkVersion 30
     }
 
     compileOptions {
@@ -47,15 +42,11 @@ repositories {
     google()
     mavenCentral()
     mavenLocal()
-    jcenter {
-        content {
-            includeVersion 'org.jetbrains.trove4j', 'trove4j', '20160824'
-        }
-    }
+    maven { url 'https://jitpack.io' }
 }
 
 dependencies {
-    implementation "org.whispersystems:curve25519-android:${curve25519_version}"
+    implementation "com.github.getlantern:curve25519-android:${curve25519_version}"
     implementation (project(':java')) {
         exclude group: 'org.whispersystems', module: 'curve25519-java'
     }
@@ -121,7 +112,7 @@ uploadArchives {
     }
 }
 
-task installArchives(type: Upload) {
+task publishToMavenLocal(type: Upload) {
     description "Installs the artifacts to the local Maven repository."
     configuration = configurations['archives']
     repositories {

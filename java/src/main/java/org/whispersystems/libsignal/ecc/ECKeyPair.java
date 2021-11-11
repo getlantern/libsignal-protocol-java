@@ -18,19 +18,6 @@ public class ECKeyPair {
     this.privateKey = privateKey;
   }
 
-  public static ECKeyPair fromBytes(byte[] bytes) throws InvalidKeyException {
-    if (bytes.length != 64) {
-      throw new InvalidKeyException("Bad keypair length: " + bytes.length);
-    }
-
-    byte[][] parts = ByteUtil.split(bytes, 32, 32);
-    return new ECKeyPair(new ECPublicKey(parts[0]), new ECPrivateKey(parts[1]));
-  }
-
-  public byte[] getBytes() {
-    return ByteUtil.combine(publicKey.getBytes(), privateKey.getBytes());
-  }
-
   public ECPublicKey getPublicKey() {
     return publicKey;
   }

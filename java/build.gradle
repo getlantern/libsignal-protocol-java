@@ -22,6 +22,7 @@ group            = group_info
 repositories {
     mavenCentral()
     mavenLocal()
+    maven { url 'https://jitpack.io' }
 }
 
 sourceSets {
@@ -33,7 +34,7 @@ sourceSets {
 }
 
 dependencies {
-    implementation "org.whispersystems:curve25519-java:${curve25519_version}"
+    implementation "com.github.getlantern:curve25519-java:${curve25519_version}"
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
 
     testImplementation ('junit:junit:3.8.2')
@@ -128,7 +129,7 @@ uploadArchives {
     }
 }
 
-task installArchives(type: Upload) {
+task publishToMavenLocal(type: Upload) {
     description "Installs the artifacts to the local Maven repository."
     configuration = configurations['archives']
     repositories {
