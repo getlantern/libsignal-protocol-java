@@ -10,12 +10,8 @@ buildscript {
 }
 
 apply plugin: 'com.android.library'
-apply plugin: 'maven'
+apply plugin: 'maven-publish'
 apply plugin: 'signing'
-
-archivesBaseName = "signal-protocol-android"
-version          = version_number
-group            = group_info
 
 android {
     compileSdkVersion 30
@@ -46,9 +42,9 @@ repositories {
 }
 
 dependencies {
-    implementation "com.github.getlantern:curve25519-android:${curve25519_version}"
+    implementation "com.github.getlantern.curve25519-java:curve25519-android:4a5f50748f"
     implementation (project(':java')) {
-        exclude group: 'org.whispersystems', module: 'curve25519-java'
+        exclude group: 'com.github.getlantern.curve25519-java', module: 'curve25519-java'
     }
 }
 
@@ -74,51 +70,23 @@ signing {
     sign configurations.archives
 }
 
-uploadArchives {
-    configuration = configurations.archives
-    repositories.mavenDeployer {
-        beforeDeployment { MavenDeployment deployment -> signing.signPom(deployment) }
-
-        repository(url: getReleaseRepositoryUrl()) {
-            authentication(userName: getRepositoryUsername(), password: getRepositoryPassword())
-        }
-
-        pom.project {
-            name 'signal-protocol-android'
-            packaging 'aar'
-            description 'Signal Protocol cryptography library for Android'
-            url 'https://github.com/WhisperSystems/libsignal-android'
-
-            scm {
-                url 'scm:git@github.com:WhisperSystems/libsignal-android.git'
-                connection 'scm:git@github.com:WhisperSystems/libsignal-android.git'
-                developerConnection 'scm:git@github.com:WhisperSystems/libsignal-android.git'
+// the below is needed in order to get the archive to publish with maven/Jitpack
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+                groupId    = group_info
+                artifactId = "signal-protocol-android"
+                version    = version_number
             }
-
-            licenses {
-                license {
-                    name 'GPLv3'
-                    url 'https://www.gnu.org/licenses/gpl-3.0.txt'
-                    distribution 'repo'
-                }
-            }
-
-            developers {
-                developer {
-                    name 'Moxie Marlinspike'
-                }
+            debug(MavenPublication) {
+                // Applies the component for the debug build variant.
+                from components.debug
+                groupId    = group_info
+                artifactId = "signal-protocol-android"
+                version    = version_number
             }
         }
     }
 }
-
-task publishToMavenLocal(type: Upload) {
-    description "Installs the artifacts to the local Maven repository."
-    configuration = configurations['archives']
-    repositories {
-        mavenDeployer {
-            repository url: "file://${System.properties['user.home']}/.m2/repository"
-        }
-    }
-}
-

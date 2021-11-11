@@ -1,7 +1,6 @@
 subprojects {
     ext.version_number     = "2.8.1"
     ext.group_info         = "com.github.getlantern"
-    ext.curve25519_version = "1ce78a2b8a"
 
     if (JavaVersion.current().isJava8Compatible()) {
         allprojects {
