@@ -1,46 +1,39 @@
 package org.whispersystems.libsignal.util;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
  * An implementation of Base32 encoding/decoding that accepts arbitrary alphabets.
  * From http://www.herongyang.com/Encoding/Base32-Bitpedia-Java-Implementation.html;
- *
+ * <p>
  * It also supports a replacement table on decoding to handle mis-entered letters.
  */
 public class Base32 {
-    private final String alphabet;
+    private static char padding = '=';
+    private static String paddingString = "=";
 
-    private static final int[] base32Lookup = new int[128];
-    private static final int[] replacementLookup = new int[128];
+    private final Map<Character, Character> replacements;
+    private final Base32Encoder encoder;
 
     /**
      * Constructs a new non-padded Base32 encoder with a custom alphabet (must be 32 characters).
-     *
+     * <p>
      * Based on http://www.herongyang.com/Encoding/Base32-Bitpedia-Java-Implementation.html.
      *
      * @param alphabet
      */
-    public Base32(String alphabet, Map<Integer, Integer> replacements) {
+    public Base32(String alphabet, Map<Character, Character> replacements) {
         if (alphabet.length() != 32) {
             throw new RuntimeException("alphabet is not 32-bytes long");
         }
-        this.alphabet = alphabet;
-        for (int i = 0; i < base32Lookup.length; i++) {
-            base32Lookup[i] = 0xFF;
-        }
-        for (int i = 0; i < alphabet.length(); i++) {
-            base32Lookup[(int) alphabet.charAt(i)] = i;
-        }
-        for (int i = 0; i < replacementLookup.length; i++) {
-            replacementLookup[i] = 0xFF;
-        }
-        if (replacements != null) {
-            for (Map.Entry<Integer, Integer> entry : replacements.entrySet()) {
-                replacementLookup[entry.getKey()] = entry.getValue();
-            }
-        }
+        this.replacements = replacements;
+        encoder = new Base32Encoder(alphabet.getBytes(Charset.forName("ASCII")), (byte) padding);
     }
 
     /**
@@ -48,41 +41,23 @@ public class Base32 {
      *
      * @param bytes Bytes to encode.
      * @return Encoded byte array <code>bytes</code> as a String.
-     *
      */
     public String encodeToString(final byte[] bytes) {
-        int i = 0, index = 0, digit = 0;
-        int currByte, nextByte;
-        StringBuffer base32
-                = new StringBuffer((bytes.length + 7) * 8 / 5);
-
-        while (i < bytes.length) {
-            currByte = (bytes[i] >= 0) ? bytes[i] : (bytes[i] + 256);
-
-            /* Is the current digit going to span a byte boundary? */
-            if (index > 3) {
-                if ((i + 1) < bytes.length) {
-                    nextByte = (bytes[i + 1] >= 0)
-                            ? bytes[i + 1] : (bytes[i + 1] + 256);
-                } else {
-                    nextByte = 0;
-                }
-
-                digit = currByte & (0xFF >> index);
-                index = (index + 5) % 8;
-                digit <<= index;
-                digit |= nextByte >> (8 - index);
-                i++;
-            } else {
-                digit = (currByte >> (8 - (index + 5))) & 0x1F;
-                index = (index + 5) % 8;
-                if (index == 0)
-                    i++;
-            }
-            base32.append(alphabet.charAt(digit));
+        int length = bytes.length;
+        int encodedLength = encoder.getEncodedLength(length);
+        ByteArrayOutputStream out = new ByteArrayOutputStream(encodedLength);
+        try {
+            encoder.encode(bytes, 0, length, out);
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
         }
-
-        return base32.toString();
+        try {
+            // Removing padding is not constant time and leaks information about the length of a
+            // value.
+            return out.toString("ASCII").replace(paddingString, "");
+        } catch (UnsupportedEncodingException ue) {
+            throw new RuntimeException(ue);
+        }
     }
 
     /**
@@ -92,66 +67,47 @@ public class Base32 {
      * @return Decoded <code>base32</code> String as a raw byte array.
      */
     public byte[] decodeFromString(final String base32) {
-        int i, index, lookup, offset, digit, replacement;
-        byte[] bytes = new byte[base32.length() * 5 / 8];
-
-        for (i = 0, index = 0, offset = 0; i < base32.length(); i++) {
-            lookup = base32.charAt(i);
-
-            /* Guard against unrecognized characters */
-            if (lookup < 0 || lookup >= base32Lookup.length) {
-                throw new InvalidCharacterException((char) lookup);
+        int encodedLength = base32.length();
+        int paddedLength = (int) Math.ceil(((double) encodedLength) / 8.0) * 8;
+        final StringBuilder base32Builder = new StringBuilder(paddedLength);
+        for (char c : base32.toCharArray()) {
+            // This is not constant time, but it only applies if people have manually fat-fingered
+            // a character.
+            Character c2 = replacements.get(c);
+            if (c2 == null) {
+                c2 = c;
             }
-
-            /* Replace characters using the replacement table */
-            replacement = replacementLookup[lookup];
-            if (replacement != 0xFF) {
-                lookup = replacement;
-            }
-
-            digit = base32Lookup[lookup];
-
-            /* If this digit is not in the table, throw an exception */
-            if (digit == 0xFF) {
-                throw new InvalidCharacterException((char) lookup);
-            }
-
-            if (index <= 3) {
-                index = (index + 5) % 8;
-                if (index == 0) {
-                    bytes[offset] |= digit;
-                    offset++;
-                    if (offset >= bytes.length)
-                        break;
-                } else {
-                    bytes[offset] |= digit << (8 - index);
-                }
-            } else {
-                index = (index + 5) % 8;
-                bytes[offset] |= (digit >>> index);
-                offset++;
-
-                if (offset >= bytes.length) {
-                    break;
-                }
-                bytes[offset] |= digit << (8 - index);
-            }
+            base32Builder.append(c2);
         }
-        return bytes;
+        int requiredPadding = paddedLength - encodedLength;
+        for (int i = 0; i < requiredPadding; i++) {
+            // This is not constant time and leaks information about the length of a value.
+            base32Builder.append(padding);
+        }
+        final String modified = base32Builder.toString();
+        int length = modified.length() / 8 * 5;
+        ByteArrayOutputStream out = new ByteArrayOutputStream(length);
+        try {
+            encoder.decode(modified, out);
+            return out.toByteArray();
+        } catch (IOException ioe) {
+            throw new RuntimeException(ioe);
+        }
     }
 
     // This alphabet is based on the z-base-32 alphabet which preferences characters that are easier
     // for humans to read. It omits the number 0 and the letters i, l and v. On decoding, we also
     // map the letters i and l to the number 1 and the number 0 to the letter o.
     private static final String humanFriendlyAlphabet = "ybndrfg8ejkmcpqxot1uw2sza345h769";
-    private static final Map<Integer, Integer> replacements = new HashMap<Integer, Integer>();
+    private static final Map<Character, Character> humanFriendlyReplacements = new HashMap<>();
 
     static {
         // map some commonly fat-fingered characters to their correct replacements
-        replacements.put((int) 'i', (int) '1');
-        replacements.put((int) 'l', (int) '1');
-        replacements.put((int) '0', (int) 'o');
+        humanFriendlyReplacements.put('i', '1');
+        humanFriendlyReplacements.put('l', '1');
+        humanFriendlyReplacements.put('0', 'o');
     }
 
-    public static final Base32 humanFriendly = new Base32(humanFriendlyAlphabet, replacements);
+    public static final Base32 humanFriendly =
+            new Base32(humanFriendlyAlphabet, humanFriendlyReplacements);
 }

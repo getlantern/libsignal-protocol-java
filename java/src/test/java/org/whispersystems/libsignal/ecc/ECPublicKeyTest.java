@@ -30,13 +30,13 @@ public class ECPublicKeyTest extends TestCase {
 
     public void testCorrupted() throws InvalidKeyException {
         ECPublicKey key = Curve.generateKeyPair().getPublicKey();
-        String keyString = key.toString() + "=";
+        String keyString = key.toString() + "+";
         try {
             new ECPublicKey(keyString);
-            fail("corrupted key should cause InvalidCharacterException");
-        } catch (InvalidCharacterException ice) {
+            fail("corrupted key should cause InvalidKeyException");
+        } catch (InvalidKeyException ike) {
             // expected
-            System.out.println(ice.toString());
+            System.out.println(ike.toString());
         }
     }
 
