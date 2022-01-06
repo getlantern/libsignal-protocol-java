@@ -2,12 +2,8 @@ package org.whispersystems.libsignal.util;
 
 import junit.framework.TestCase;
 
-import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.util.InvalidCharacterException;
-
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Random;
 
 public class Base32Test extends TestCase {
     public void testRoundTripString() {
@@ -17,9 +13,9 @@ public class Base32Test extends TestCase {
                 builder.append(j);
             }
             String string = builder.toString();
-            char[] encoded = NewBase32.encode(string.getBytes(StandardCharsets.UTF_8));
+            char[] encoded = Base32.encode(string.getBytes(StandardCharsets.UTF_8));
             System.out.println(new String(encoded));
-            String roundTripped = new String(NewBase32.decode(encoded));
+            String roundTripped = new String(Base32.decode(encoded));
             assertEquals(string, roundTripped);
         }
     }
@@ -29,9 +25,9 @@ public class Base32Test extends TestCase {
         for (int i = 0; i < 255; i++) {
             b = Arrays.copyOf(b, b.length + 1);
             b[i] = (byte) i;
-            char[] encoded = NewBase32.encode(b);
+            char[] encoded = Base32.encode(b);
             System.out.println(new String(encoded));
-            byte[] roundTripped = NewBase32.decode(encoded);
+            byte[] roundTripped = Base32.decode(encoded);
             assertTrue(Arrays.equals(b, roundTripped));
         }
     }
@@ -39,16 +35,16 @@ public class Base32Test extends TestCase {
     public void testDecodeSpecialCharacters() {
         String normal = "y100";
         assertEquals(
-                new String(NewBase32.decode(normal.toCharArray())),
-                new String(NewBase32.decode("yi00".toCharArray()))
+                new String(Base32.decode(normal.toCharArray())),
+                new String(Base32.decode("yi00".toCharArray()))
         );
         assertEquals(
-                new String(NewBase32.decode(normal.toCharArray())),
-                new String(NewBase32.decode("yl00".toCharArray()))
+                new String(Base32.decode(normal.toCharArray())),
+                new String(Base32.decode("yl00".toCharArray()))
         );
         assertEquals(
-                new String(NewBase32.decode(normal.toCharArray())),
-                new String(NewBase32.decode("y1oo".toCharArray()))
+                new String(Base32.decode(normal.toCharArray())),
+                new String(Base32.decode("y1oo".toCharArray()))
         );
     }
 }
