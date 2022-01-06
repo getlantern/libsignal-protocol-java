@@ -1,7 +1,5 @@
 package org.whispersystems.libsignal.util;
 
-import java.util.Arrays;
-
 /**
  * This is a port of https://github.com/paragonie/constant_time_encoding/blob/master/src/Base32.php
  * intended to avoid cache timing attacks by avoiding the use of table lookups and branching
@@ -18,14 +16,25 @@ import java.util.Arrays;
  */
 public class Base32 {
     /**
-     * Decode from Base32
+     * Decode from a Base32 ASCII array of bytes.
      */
-    public static byte[] decode(char[] src) {
+    public static byte[] decode(byte[] src) {
+        return doDecode(new ByteArrayCharacterSource(src));
+    }
+
+    /**
+     * Decode from Base32 String.
+     */
+    public static byte[] decode(String src) {
+        return doDecode(new StringCharacterSource(src));
+    }
+
+    public static byte[] doDecode(CharacterSource src) {
         if (src == null) {
             return null;
         }
 
-        int srcLen = src.length;
+        int srcLen = src.length();
         if (srcLen == 0) {
             return null;
         }
@@ -35,15 +44,14 @@ public class Base32 {
         // Main loop
         int i;
         for (i = 0; i + 8 <= srcLen; i += 8) {
-            char[] chunk = Arrays.copyOfRange(src, i, Math.min(srcLen, i + 8));
-            int c0 = decode5Bits(chunk[0]);
-            int c1 = decode5Bits(chunk[1]);
-            int c2 = decode5Bits(chunk[2]);
-            int c3 = decode5Bits(chunk[3]);
-            int c4 = decode5Bits(chunk[4]);
-            int c5 = decode5Bits(chunk[5]);
-            int c6 = decode5Bits(chunk[6]);
-            int c7 = decode5Bits(chunk[7]);
+            int c0 = decode5Bits(src.charAt(i, 0));
+            int c1 = decode5Bits(src.charAt(i, 1));
+            int c2 = decode5Bits(src.charAt(i, 2));
+            int c3 = decode5Bits(src.charAt(i, 3));
+            int c4 = decode5Bits(src.charAt(i, 4));
+            int c5 = decode5Bits(src.charAt(i, 5));
+            int c6 = decode5Bits(src.charAt(i, 6));
+            int c7 = decode5Bits(src.charAt(i, 7));
 
             dest.append(
                     ((c0 << 3) | (c1 >> 2)) & 255,
@@ -56,16 +64,15 @@ public class Base32 {
         }
         // The last chunk
         if (i < srcLen) {
-            char[] chunk = Arrays.copyOfRange(src, i, srcLen);
-            int c0 = decode5Bits(chunk[0]);
+            int c0 = decode5Bits(src.charAt(i, 0));
 
             if (i + 6 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
-                int c2 = decode5Bits(chunk[2]);
-                int c3 = decode5Bits(chunk[3]);
-                int c4 = decode5Bits(chunk[4]);
-                int c5 = decode5Bits(chunk[5]);
-                int c6 = decode5Bits(chunk[6]);
+                int c1 = decode5Bits(src.charAt(i, 1));
+                int c2 = decode5Bits(src.charAt(i, 2));
+                int c3 = decode5Bits(src.charAt(i, 3));
+                int c4 = decode5Bits(src.charAt(i, 4));
+                int c5 = decode5Bits(src.charAt(i, 5));
+                int c6 = decode5Bits(src.charAt(i, 6));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255,
                         ((c1 << 6) | (c2 << 1) | (c3 >> 4)) & 255,
@@ -74,11 +81,11 @@ public class Base32 {
                 );
                 err |= (c0 | c1 | c2 | c3 | c4 | c5 | c6) >> 8;
             } else if (i + 5 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
-                int c2 = decode5Bits(chunk[2]);
-                int c3 = decode5Bits(chunk[3]);
-                int c4 = decode5Bits(chunk[4]);
-                int c5 = decode5Bits(chunk[5]);
+                int c1 = decode5Bits(src.charAt(i, 1));
+                int c2 = decode5Bits(src.charAt(i, 2));
+                int c3 = decode5Bits(src.charAt(i, 3));
+                int c4 = decode5Bits(src.charAt(i, 4));
+                int c5 = decode5Bits(src.charAt(i, 5));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255,
                         ((c1 << 6) | (c2 << 1) | (c3 >> 4)) & 255,
@@ -87,10 +94,10 @@ public class Base32 {
                 );
                 err |= (c0 | c1 | c2 | c3 | c4 | c5) >> 8;
             } else if (i + 4 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
-                int c2 = decode5Bits(chunk[2]);
-                int c3 = decode5Bits(chunk[3]);
-                int c4 = decode5Bits(chunk[4]);
+                int c1 = decode5Bits(src.charAt(i, 1));
+                int c2 = decode5Bits(src.charAt(i, 2));
+                int c3 = decode5Bits(src.charAt(i, 3));
+                int c4 = decode5Bits(src.charAt(i, 4));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255,
                         ((c1 << 6) | (c2 << 1) | (c3 >> 4)) & 255,
@@ -98,24 +105,24 @@ public class Base32 {
                 );
                 err |= (c0 | c1 | c2 | c3 | c4) >> 8;
             } else if (i + 3 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
-                int c2 = decode5Bits(chunk[2]);
-                int c3 = decode5Bits(chunk[3]);
+                int c1 = decode5Bits(src.charAt(i, 1));
+                int c2 = decode5Bits(src.charAt(i, 2));
+                int c3 = decode5Bits(src.charAt(i, 3));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255,
                         ((c1 << 6) | (c2 << 1) | (c3 >> 4)) & 255
                 );
                 err |= (c0 | c1 | c2 | c3) >> 8;
             } else if (i + 2 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
-                int c2 = decode5Bits(chunk[2]);
+                int c1 = decode5Bits(src.charAt(i, 1));
+                int c2 = decode5Bits(src.charAt(i, 2));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255,
                         ((c1 << 6) | (c2 << 1)) & 255
                 );
                 err |= (c0 | c1 | c2) >> 8;
             } else if (i + 1 < srcLen) {
-                int c1 = decode5Bits(chunk[1]);
+                int c1 = decode5Bits(src.charAt(i, 1));
 
                 dest.append(((c0 << 3) | (c1 >> 2)) & 255
                 );
@@ -134,21 +141,27 @@ public class Base32 {
     }
 
     /**
-     * Encode to Base32
+     * Encode to a Base32 String.
      */
-    public static char[] encode(byte[] src) {
+    public static String encodeToString(byte[] src) {
+        return new String(encode(src));
+    }
+
+    /**
+     * Encode to a Base32 ASCII byte array.
+     */
+    public static byte[] encode(byte[] src) {
         int srcLen = src.length;
-        CharArrayBuilder dest = new CharArrayBuilder((int) Math.ceil(srcLen * 8.0 / 5.0));
+        ByteArrayBuilder dest = new ByteArrayBuilder((int) Math.ceil(srcLen * 8.0 / 5.0));
 
         int i;
         // Main loop
         for (i = 0; i + 5 <= srcLen; i += 5) {
-            byte[] chunk = Arrays.copyOfRange(src, i, Math.min(srcLen, i + 5));
-            int b0 = byteToInt(chunk[0]);
-            int b1 = byteToInt(chunk[1]);
-            int b2 = byteToInt(chunk[2]);
-            int b3 = byteToInt(chunk[3]);
-            int b4 = byteToInt(chunk[4]);
+            int b0 = byteToInt(src[i + 0]);
+            int b1 = byteToInt(src[i + 1]);
+            int b2 = byteToInt(src[i + 2]);
+            int b3 = byteToInt(src[i + 3]);
+            int b4 = byteToInt(src[i + 4]);
             dest.append(
                     encode5Bits((b0 >> 3) & 31),
                     encode5Bits(((b0 << 2) | (b1 >> 6)) & 31),
@@ -161,12 +174,11 @@ public class Base32 {
         }
         // The last chunk, which may have padding:
         if (i < srcLen) {
-            byte[] chunk = Arrays.copyOfRange(src, i, srcLen);
-            int b0 = byteToInt(chunk[0]);
+            int b0 = byteToInt(src[i + 0]);
             if (i + 3 < srcLen) {
-                int b1 = byteToInt(chunk[1]);
-                int b2 = byteToInt(chunk[2]);
-                int b3 = byteToInt(chunk[3]);
+                int b1 = byteToInt(src[i + 1]);
+                int b2 = byteToInt(src[i + 2]);
+                int b3 = byteToInt(src[i + 3]);
                 dest.append(
                         encode5Bits((b0 >> 3) & 31),
                         encode5Bits(((b0 << 2) | (b1 >> 6)) & 31),
@@ -176,8 +188,8 @@ public class Base32 {
                         encode5Bits(((b3 >> 2)) & 31),
                         encode5Bits(((b3 << 3)) & 31));
             } else if (i + 2 < srcLen) {
-                int b1 = byteToInt(chunk[1]);
-                int b2 = byteToInt(chunk[2]);
+                int b1 = byteToInt(src[i + 1]);
+                int b2 = byteToInt(src[i + 2]);
                 dest.append(
                         encode5Bits((b0 >> 3) & 31),
                         encode5Bits(((b0 << 2) | (b1 >> 6)) & 31),
@@ -185,7 +197,7 @@ public class Base32 {
                         encode5Bits(((b1 << 4) | (b2 >> 4)) & 31),
                         encode5Bits(((b2 << 1)) & 31));
             } else if (i + 1 < srcLen) {
-                int b1 = byteToInt(chunk[1]);
+                int b1 = byteToInt(src[i + 1]);
                 dest.append(
                         encode5Bits((b0 >> 3) & 31),
                         encode5Bits(((b0 << 2) | (b1 >> 6)) & 31),
@@ -197,7 +209,8 @@ public class Base32 {
                         encode5Bits((b0 << 2) & 31));
             }
         }
-        return dest.c;
+
+        return dest.b;
     }
 
     /**
@@ -321,6 +334,48 @@ public class Base32 {
         return i;
     }
 
+    private interface CharacterSource {
+        int length();
+
+        int charAt(int offset, int idx);
+    }
+
+    private static class ByteArrayCharacterSource implements CharacterSource {
+        private final byte[] b;
+
+        private ByteArrayCharacterSource(byte[] b) {
+            this.b = b;
+        }
+
+        @Override
+        public int length() {
+            return b.length;
+        }
+
+        @Override
+        public int charAt(int offset, int idx) {
+            return b[offset + idx];
+        }
+    }
+
+    private static class StringCharacterSource implements CharacterSource {
+        private final String s;
+
+        private StringCharacterSource(String s) {
+            this.s = s;
+        }
+
+        @Override
+        public int length() {
+            return s.length();
+        }
+
+        @Override
+        public int charAt(int offset, int idx) {
+            return s.charAt(offset + idx);
+        }
+    }
+
     private static class ByteArrayBuilder {
         private final byte[] b;
         private int i = 0;
@@ -335,22 +390,6 @@ public class Base32 {
                     throw new InvalidCharacterException();
                 }
                 b[i] = (byte) v;
-                i++;
-            }
-        }
-    }
-
-    private static class CharArrayBuilder {
-        private final char[] c;
-        private int i = 0;
-
-        private CharArrayBuilder(int length) {
-            c = new char[length];
-        }
-
-        private void append(int... values) {
-            for (int v : values) {
-                c[i] = (char) v;
                 i++;
             }
         }

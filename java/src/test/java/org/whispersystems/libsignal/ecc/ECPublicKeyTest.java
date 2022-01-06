@@ -33,10 +33,10 @@ public class ECPublicKeyTest extends TestCase {
         String keyString = key.toString() + "=";
         try {
             new ECPublicKey(keyString);
-            fail("corrupted key should cause InvalidCharacterException");
-        } catch (InvalidCharacterException ice) {
+            fail("corrupted key should cause InvalidKeyException");
+        } catch (InvalidKeyException ike) {
             // expected
-            System.out.println(ice.toString());
+            System.out.println(ike);
         }
     }
 

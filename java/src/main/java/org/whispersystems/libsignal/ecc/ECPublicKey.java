@@ -30,7 +30,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
 
     private static byte[] decodeFromString(String string) throws InvalidKeyException {
         try {
-            return Base32.decode(string.toCharArray())
+            return Base32.decode(string);
         } catch (InvalidCharacterException ice) {
             throw new InvalidKeyException(ice);
         }
@@ -41,7 +41,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
     }
 
     public String toString() {
-        return new String(Base32.encode(bytes));
+        return Base32.encodeToString(bytes);
     }
 
     @Override

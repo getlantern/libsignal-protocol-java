@@ -14,7 +14,7 @@ public class DeviceId {
     }
 
     public DeviceId(String humanFriendlyString) {
-        this(Base32.decode(humanFriendlyString.toCharArray()));
+        this(Base32.decode(humanFriendlyString));
     }
 
     public byte[] getBytes() {
@@ -33,7 +33,7 @@ public class DeviceId {
     }
 
     public String toString() {
-        return new String(Base32.encode(bytes));
+        return Base32.encodeToString(bytes);
     }
 
     @Override
