@@ -35,4 +35,20 @@ public class Base32Test extends TestCase {
             assertTrue(Arrays.equals(b, roundTripped));
         }
     }
+
+    public void testDecodeSpecialCharacters() {
+        String normal = "y100";
+        assertEquals(
+                new String(NewBase32.decode(normal.toCharArray())),
+                new String(NewBase32.decode("yi00".toCharArray()))
+        );
+        assertEquals(
+                new String(NewBase32.decode(normal.toCharArray())),
+                new String(NewBase32.decode("yl00".toCharArray()))
+        );
+        assertEquals(
+                new String(NewBase32.decode(normal.toCharArray())),
+                new String(NewBase32.decode("y1oo".toCharArray()))
+        );
+    }
 }

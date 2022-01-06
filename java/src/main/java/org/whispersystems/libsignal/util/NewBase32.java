@@ -10,6 +10,11 @@ import java.util.Arrays;
  * constant-time.
  * <p>
  * This does not use padding and uses only lower case.
+ * <p>
+ * This uses the alphabet ybndrfg8ejkmcpqxot1uw2sza345h769, which is similar to the z-base-32
+ * alphabet that preferences characters that are easier for humans to read, but our alphabet omits
+ * the number 0 and the letters i, l and v. On decoding, it also maps the letters i and l to the
+ * number 1 and the number 0 to the letter o.
  */
 public class NewBase32 {
     /**
@@ -200,28 +205,107 @@ public class NewBase32 {
      * into 8-bit integers.
      */
     private static int decode5Bits(int in) {
-        int out = -1;
+        // replace i with 1
+        in = replaceCharacter(in, 105, 49);
 
-        // if (in > 96 && in < 123) out += in - 97 + 1; // -64
-        out += (((96 - in) & (in - 123)) >> 8) & (in - 96);
+        // replace l with 1
+        in = replaceCharacter(in, 108, 49);
 
-        // if (in > 49 && in < 56) out += in - 24 + 1; // -23
-        out += (((49 - in) & (in - 56)) >> 8) & (in - 23);
+        // replace 0 with o
+        in = replaceCharacter(in, 48, 111);
 
+        int out = 18; // 1
+        out += ((49 - in) >> 8) & 3; // 1 -> 2
+        out += ((50 - in) >> 8) & 4; // 2 -> 3
+        out += ((51 - in) >> 8) & 1; // 3 -> 4
+        out += ((52 - in) >> 8) & 1; // 4 -> 5
+        out += ((53 - in) >> 8) & 3; // 5 -> 6
+        out -= ((54 - in) >> 8) & 1; // 6 -> 7
+        out -= ((55 - in) >> 8) & 22; // 7 -> 8
+        out += ((56 - in) >> 8) & 24; // 8 -> 9
+        out -= ((96 - in) >> 8) & 7; // 9 -> a
+        out -= ((97 - in) >> 8) & 23; // a -> b
+        out += ((98 - in) >> 8) & 11; // b -> c
+        out -= ((99 - in) >> 8) & 9; // c -> d
+        out += ((100 - in) >> 8) & 5; // d -> e
+        out -= ((101 - in) >> 8) & 3; // e -> f
+        out += ((102 - in) >> 8) & 1; // f -> g
+        out += ((103 - in) >> 8) & 22; // g -> h
+        out -= ((105 - in) >> 8) & 19; // h -> j
+        out += ((106 - in) >> 8) & 1; // j -> k
+        out += ((108 - in) >> 8) & 1; // k -> m
+        out -= ((109 - in) >> 8) & 9; // m -> n
+        out += ((110 - in) >> 8) & 14; // n -> o
+        out -= ((111 - in) >> 8) & 3; // o -> p
+        out += ((112 - in) >> 8) & 1; // p -> q
+        out -= ((113 - in) >> 8) & 10; // q -> r
+        out += ((114 - in) >> 8) & 18; // r -> s
+        out -= ((115 - in) >> 8) & 5; // s -> t
+        out += ((116 - in) >> 8) & 2; // t -> u
+        out += ((118 - in) >> 8) & 1; // u -> w
+        out -= ((119 - in) >> 8) & 5; // w -> x
+        out -= ((120 - in) >> 8) & 15; // x -> y
+        out += ((121 - in) >> 8) & 23; // y -> z
         return out;
     }
 
     /**
+     * Replaces actual with replacement if actual == expected, using bitwise operators for
+     * constant-time evaluation.
+     */
+    private static int replaceCharacter(int actual, int expected, int replacement) {
+        int diff = replacement - expected;
+        int result = actual;
+        result += (((expected-1-actual) & (actual-expected-1)) >> 8) & diff;
+        return result;
+    }
+
+    /**
      * Uses bitwise operators instead of table-lookups to turn 8-bit integers
-     * into 5-bit integers.
+     * into 5-bit integers. This implements a constant time version of the z-base-32 character map
+     * by jumping from character to character until we reach the correct character for the input
+     * value.
+     * <p>
+     * Examples:
+     * <p>
+     * 0: stay at y
+     * 1: jump y -> b
+     * 5: y -> b -> n -> d -> r -> f
      */
     private static char encode5Bits(int in) {
-        int diff = 97; // ASCII lowercase a
-
-        // if (in > 25) ret -= 72 (shifts from alphas to numbers)
-        diff -= ((25 - in) >> 8) & 73;
-
-        return (char) (in + diff);
+        int out = 121; // y
+        out -= ((0 - in) >> 8) & 23; // y -> b
+        out += ((1 - in) >> 8) & 12; // b -> n
+        out -= ((2 - in) >> 8) & 10; // n -> d
+        out += ((3 - in) >> 8) & 14; // d -> r
+        out -= ((4 - in) >> 8) & 12; // r -> f
+        out += ((5 - in) >> 8) & 1; // f -> g
+        out -= ((6 - in) >> 8) & 47; // g -> 8
+        out += ((7 - in) >> 8) & 45; // 8 -> e
+        out += ((8 - in) >> 8) & 5; // e -> j
+        out += ((9 - in) >> 8) & 1; // j -> k
+        out += ((10 - in) >> 8) & 2; // k -> m
+        out -= ((11 - in) >> 8) & 10; // m -> c
+        out += ((12 - in) >> 8) & 13; // c -> p
+        out += ((13 - in) >> 8) & 1; // p -> q
+        out += ((14 - in) >> 8) & 7; // q -> x
+        out -= ((15 - in) >> 8) & 9; // x -> o
+        out += ((16 - in) >> 8) & 5; // o -> t
+        out -= ((17 - in) >> 8) & 67; // t -> 1
+        out += ((18 - in) >> 8) & 68; // 1 -> u
+        out += ((19 - in) >> 8) & 2; // u -> w
+        out -= ((20 - in) >> 8) & 69; // w -> 2
+        out += ((21 - in) >> 8) & 65; // 2 -> s
+        out += ((22 - in) >> 8) & 7; // s -> z
+        out -= ((23 - in) >> 8) & 25; // z -> a
+        out -= ((24 - in) >> 8) & 46; // a -> 3
+        out += ((25 - in) >> 8) & 1; // 3 -> 4
+        out += ((26 - in) >> 8) & 1; // 4 -> 5
+        out += ((27 - in) >> 8) & 51; // 5 -> h
+        out -= ((28 - in) >> 8) & 49; // h -> 7
+        out -= ((29 - in) >> 8) & 1; // 7 -> 6
+        out += ((30 - in) >> 8) & 3; // 6 -> 9
+        return (char) out;
     }
 
     /**
