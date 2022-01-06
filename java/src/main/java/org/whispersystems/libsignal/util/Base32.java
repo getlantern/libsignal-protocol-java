@@ -100,7 +100,7 @@ public class Base32 {
 
             /* Guard against unrecognized characters */
             if (lookup < 0 || lookup >= base32Lookup.length) {
-                throw new InvalidCharacterException((char) lookup);
+                throw new InvalidCharacterException();
             }
 
             /* Replace characters using the replacement table */
@@ -113,7 +113,7 @@ public class Base32 {
 
             /* If this digit is not in the table, throw an exception */
             if (digit == 0xFF) {
-                throw new InvalidCharacterException((char) lookup);
+                throw new InvalidCharacterException();
             }
 
             if (index <= 3) {
