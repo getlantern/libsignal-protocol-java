@@ -30,7 +30,7 @@ public class ECPublicKeyTest extends TestCase {
 
     public void testCorrupted() throws InvalidKeyException {
         ECPublicKey key = Curve.generateKeyPair().getPublicKey();
-        String keyString = key.toString() + "=";
+        String keyString = "-" + key.toString().substring(1, 52);
         try {
             new ECPublicKey(keyString);
             fail("corrupted key should cause InvalidKeyException");

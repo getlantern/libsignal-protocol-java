@@ -224,7 +224,8 @@ public class Base32 {
         // replace 0 with o
         in = replaceCharacter(in, 48, 111);
 
-        int out = 18; // 1
+        int out = -1; //
+        out += ((48 - in) >> 8) & 19; //  -> 1
         out += ((49 - in) >> 8) & 3; // 1 -> 2
         out += ((50 - in) >> 8) & 4; // 2 -> 3
         out += ((51 - in) >> 8) & 1; // 3 -> 4
