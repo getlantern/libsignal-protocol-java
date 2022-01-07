@@ -30,13 +30,9 @@ public class Base32 {
     }
 
     public static byte[] doDecode(CharacterSource src) {
-        if (src == null) {
-            return null;
-        }
-
         int srcLen = src.length();
         if (srcLen == 0) {
-            return null;
+            return new byte[0];
         }
 
         int err = 0;
@@ -349,7 +345,7 @@ public class Base32 {
 
         @Override
         public int length() {
-            return b.length;
+            return b == null ? 0 : b.length;
         }
 
         @Override
@@ -367,7 +363,7 @@ public class Base32 {
 
         @Override
         public int length() {
-            return s.length();
+            return s == null ? 0 : s.length();
         }
 
         @Override

@@ -32,6 +32,14 @@ public class Base32Test extends TestCase {
         }
     }
 
+    public void testDecodeNullString() {
+        assertNotNull(Base32.decode((String) null));
+    }
+
+    public void testDecodeNullBytes() {
+        assertNotNull(Base32.decode((byte[]) null));
+    }
+
     public void testDecodeSpecialCharacters() {
         String normal = "y100";
         assertEquals(
