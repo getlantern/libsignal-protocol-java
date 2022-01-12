@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Base32Test extends TestCase {
+public class HFBase32Test extends TestCase {
     // Contains a list of strings encoded with other encoders in order to have a unified source of truth
     Map<String, String> testVectors = new HashMap<String, String>();
 
@@ -34,9 +34,9 @@ public class Base32Test extends TestCase {
                 builder.append(j);
             }
             String string = builder.toString();
-            byte[] encoded = Base32.encode(string.getBytes(StandardCharsets.UTF_8));
+            byte[] encoded = HFBase32.encode(string.getBytes(StandardCharsets.UTF_8));
             System.out.println(new String(encoded, StandardCharsets.UTF_8));
-            String roundTripped = new String(Base32.decode(encoded));
+            String roundTripped = new String(HFBase32.decode(encoded));
             assertEquals(string, roundTripped);
         }
     }
@@ -46,37 +46,47 @@ public class Base32Test extends TestCase {
         for (int i = 0; i < 255; i++) {
             b = Arrays.copyOf(b, b.length + 1);
             b[i] = (byte) i;
-            byte[] encoded = Base32.encode(b);
+            byte[] encoded = HFBase32.encode(b);
             System.out.println(new String(encoded));
-            byte[] roundTripped = Base32.decode(encoded);
+            byte[] roundTripped = HFBase32.decode(encoded);
             assertTrue(Arrays.equals(b, roundTripped));
         }
     }
 
     public void testDecodeNullString() {
-        assertNotNull(Base32.decode((String) null));
+        assertNotNull(HFBase32.decode((String) null));
     }
 
     public void testDecodeNullBytes() {
-        assertNotNull(Base32.decode((byte[]) null));
+        assertNotNull(HFBase32.decode((byte[]) null));
     }
 
+    /**
+     * This test verifies that special character replacements are handled correctly. Namely:
+     *
+     * i -> 1
+     * l -> 1
+     * 0 -> o
+     */
     public void testDecodeSpecialCharacters() {
         String normal = "y100";
         assertEquals(
-                new String(Base32.decode(normal.getBytes(StandardCharsets.UTF_8))),
-                new String(Base32.decode("yi00")));
+                new String(HFBase32.decode(normal.getBytes(StandardCharsets.UTF_8))),
+                new String(HFBase32.decode("yioo"))
+        );
         assertEquals(
-                new String(Base32.decode(normal.getBytes(StandardCharsets.UTF_8))),
-                new String(Base32.decode("yl00")));
+                new String(HFBase32.decode(normal.getBytes(StandardCharsets.UTF_8))),
+                new String(HFBase32.decode("yloo"))
+        );
         assertEquals(
-                new String(Base32.decode(normal.getBytes(StandardCharsets.UTF_8))),
-                new String(Base32.decode("y1oo")));
+                new String(HFBase32.decode(normal.getBytes(StandardCharsets.UTF_8))),
+                new String(HFBase32.decode("y1o0"))
+        );
     }
 
     public void testAgainstTestVectors() {
         for (Map.Entry<String, String> entry : testVectors.entrySet()) {
-            byte[] encoded = Base32.encode(entry.getKey().getBytes(StandardCharsets.UTF_8));
+            byte[] encoded = HFBase32.encode(entry.getKey().getBytes(StandardCharsets.UTF_8));
             assertEquals(entry.getValue(), new String(encoded, StandardCharsets.UTF_8));
         }
     }
@@ -103,7 +113,7 @@ public class Base32Test extends TestCase {
     //             byte[] b = new byte[size];
     //             random.nextBytes(b);
     //             long startTime = System.nanoTime();
-    //             Base32.encode(b);
+    //             HFBase32.encode(b);
     //             long endTime = System.nanoTime();
     //             encodingTimes.add(endTime - startTime);
     //         }

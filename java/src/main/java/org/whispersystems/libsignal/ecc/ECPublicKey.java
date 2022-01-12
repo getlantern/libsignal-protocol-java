@@ -7,7 +7,7 @@
 package org.whispersystems.libsignal.ecc;
 
 import org.whispersystems.libsignal.InvalidKeyException;
-import org.whispersystems.libsignal.util.Base32;
+import org.whispersystems.libsignal.util.HFBase32;
 import org.whispersystems.libsignal.util.InvalidCharacterException;
 
 import java.math.BigInteger;
@@ -30,7 +30,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
 
     private static byte[] decodeFromString(String string) throws InvalidKeyException {
         try {
-            return Base32.decode(string);
+            return HFBase32.decode(string);
         } catch (InvalidCharacterException ice) {
             throw new InvalidKeyException(ice);
         }
@@ -41,7 +41,7 @@ public class ECPublicKey implements Comparable<ECPublicKey> {
     }
 
     public String toString() {
-        return Base32.encodeToString(bytes);
+        return HFBase32.encodeToString(bytes);
     }
 
     @Override
