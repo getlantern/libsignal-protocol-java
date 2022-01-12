@@ -1,6 +1,6 @@
 package org.whispersystems.libsignal;
 
-import org.whispersystems.libsignal.util.Base32;
+import org.whispersystems.libsignal.util.HFBase32;
 
 import java.nio.ByteBuffer;
 import java.util.Arrays;
@@ -14,7 +14,7 @@ public class DeviceId {
     }
 
     public DeviceId(String humanFriendlyString) {
-        this(Base32.humanFriendly.decodeFromString(humanFriendlyString));
+        this(HFBase32.decode(humanFriendlyString));
     }
 
     public byte[] getBytes() {
@@ -33,7 +33,7 @@ public class DeviceId {
     }
 
     public String toString() {
-        return Base32.humanFriendly.encodeToString(bytes);
+        return HFBase32.encodeToString(bytes);
     }
 
     @Override
