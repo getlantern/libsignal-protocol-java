@@ -74,12 +74,9 @@ public class Base32Test extends TestCase {
                 new String(Base32.decode("y1oo")));
     }
 
-    public void testWithTestVectors() {
+    public void testAgainstTestVectors() {
         for (Map.Entry<String, String> entry : testVectors.entrySet()) {
-            long startTime = System.nanoTime();
             byte[] encoded = Base32.encode(entry.getKey().getBytes(StandardCharsets.UTF_8));
-            long endTime = System.nanoTime();
-            System.out.println(endTime - startTime);
             assertEquals(entry.getValue(), new String(encoded, StandardCharsets.UTF_8));
         }
     }
