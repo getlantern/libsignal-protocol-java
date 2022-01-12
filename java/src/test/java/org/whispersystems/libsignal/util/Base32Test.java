@@ -84,4 +84,34 @@ public class Base32Test extends TestCase {
         }
     }
 
+    // XXX <12-01-22> soltzen: leaving this commented test here as a precaution
+    // for no one to attempt this: Java's GC prevents very accurate measurements
+    // of data. There must be a good way to measure constant-time crypto.
+    // For reference, most big crypto repos don't test execution time with their
+    // constant-time code:
+    // - Libsodium's sodium_memcmp and sodium_hex2bin:
+    //   https://github.com/jedisct1/libsodium/blob/6d566070b48efd2fa099bbe9822914455150aba9/test/default/verify1.c
+    // - The entire crypto/subtle Golang package: https://pkg.go.dev/crypto/subtle
+    //
+    // A good test here is to measure the standard deviation between two sets of
+    // time differences: one with constant-time zbase32 and one without. The
+    // latter's SD would be a lot higher
+    // public void testConstantTime() {
+    //     SecureRandom random = new SecureRandom();
+    //     for (int i = 0; i < 10; i++) {
+    //         Set<Long> encodingTimes = new HashSet<>();
+    //         int size = random.nextInt(10000);
+    //         // Encode 10 random strings with the same length
+    //         for (int j = 0; j < 10; j++) {
+    //             byte[] b = new byte[size];
+    //             random.nextBytes(b);
+    //             long startTime = System.nanoTime();
+    //             Base32.encode(b);
+    //             long endTime = System.nanoTime();
+    //             encodingTimes.add(endTime - startTime);
+    //         }
+    //         System.out.println(encodingTimes);
+    //         assertEquals(1, encodingTimes.size());
+    //     }
+    // }
 }
