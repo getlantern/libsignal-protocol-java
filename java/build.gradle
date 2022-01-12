@@ -36,8 +36,9 @@ sourceSets {
 dependencies {
     implementation "com.github.getlantern.curve25519-java:curve25519-java:${curve25519_version}"
     implementation 'com.google.protobuf:protobuf-javalite:3.10.0'
+    implementation 'junit:junit:4.12'
 
-    testImplementation ('junit:junit:3.8.2')
+    testImplementation ('junit:junit:4.12')
 }
 
 protobuf {
