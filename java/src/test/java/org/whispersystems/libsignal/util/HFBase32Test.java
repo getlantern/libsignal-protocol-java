@@ -13,7 +13,6 @@ public class HFBase32Test extends TestCase {
     // Contains a list of strings encoded with other encoders in order to have a unified source of truth
     Map<String, String> testVectors = new HashMap<String, String>();
 
-    @BeforeClass
     public void setUp() {
         // Taken from [here](https://www.dcode.fr/z-base-32-encoding), after
         // changing all i's to 2's, as we do in our algorithm.
